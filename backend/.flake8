@@ -1,4 +1,9 @@
 [flake8]
-exclude = .venv,venv,site-packages,__pycache__
+exclude =
+    .venv,
+    venv,
+    __pycache__,
+    site-packages,
+    .git
 max-line-length = 100
 extend-ignore = E203,W503
