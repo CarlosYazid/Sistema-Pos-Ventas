@@ -1,9 +1,9 @@
 from fastapi import HTTPException
 from sqlmodel.ext.asyncio.session import AsyncSession
-from sqlmodel import select, func
+from sqlmodel import select, func, update
 from sqlalchemy.sql.expression import Select
 
-from models import Order, OrderProduct, OrderService, OrderStatus
+from models import Order, OrderProduct, OrderService, OrderStatus, Product
 from utils import OrderUtils
 from dtos import OrderFilter, OrderProductFilter, OrderServiceFilter
 from core import log_operation
@@ -28,9 +28,9 @@ class OrderService:
         """Query that searches for orders product who meet the filters."""
         return filters.apply(cls.QUERY_ORDER_PRODUCT_BASE)
     
-    @staticmethod
+    @classmethod
     @log_operation(True)
-    async def update_inventory(db_session: AsyncSession, order_id: int) -> bool:
+    async def update_inventory(cls, db_session: AsyncSession, order_id: int) -> bool:
         """Update inventory after an order is placed"""
 
         if not await OrderUtils.exist_order(db_session, order_id):
