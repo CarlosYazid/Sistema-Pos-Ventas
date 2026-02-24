@@ -26,3 +26,16 @@ dependencies = [
     "uvicorn>=0.40.0",
     "weasyprint>=67.0",
 ]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+exclude = [
+  ".venv",
+  "venv",
+  "__pycache__",
+  "site-packages"
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
