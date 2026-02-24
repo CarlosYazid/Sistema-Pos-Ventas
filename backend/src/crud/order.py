@@ -78,9 +78,9 @@ class OrderCrud:
         except Exception as e:
             raise HTTPException(detail="Failed to retrieve order status", status_code=500) from e
 
-    @staticmethod
+    @classmethod
     @log_operation(True)
-    async def update_order(db_session: AsyncSession, fields: OrderUpdate) -> Order:
+    async def update_order(cls,db_session: AsyncSession, fields: OrderUpdate) -> Order:
         """Update an existing order."""
 
         if not await OrderUtils.exist_order(db_session, fields.id):
@@ -273,6 +273,7 @@ class OrderCrud:
             raise HTTPException(detail="Order service in order completed", status_code=404)
 
         try:
+            response = await db_session.exec(select(OrderService).where(OrderService.order_id == order_service.order_id).where(OrderService.service_id == order_service.service_id))
             
             await db_session.delete(response.one())
             await db_session.commit()
@@ -388,6 +389,8 @@ class OrderCrud:
             raise HTTPException(detail="Order product in order completed", status_code=404)
 
         try:
+            response = await db_session.exec(select(OrderProduct).where(OrderProduct.order_id == order_product.order_id).where(OrderProduct.product_id == order_product.product_id))
+            order_product = response.one()
             
             await db_session.delete(order_product)
             await db_session.commit()
