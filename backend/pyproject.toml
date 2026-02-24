@@ -30,12 +30,10 @@ dependencies = [
 [tool.ruff]
 line-length = 100
 target-version = "py312"
-exclude = [
-  ".venv",
-  "venv",
-  "__pycache__",
-  "site-packages"
-]
 
 [tool.ruff.lint]
 select = ["E", "F", "I"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
