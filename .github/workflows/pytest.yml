@@ -24,13 +24,13 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: "3.12"
-    - name: Install Poetry
+    - name: Install uv
       run: |
          pip install --upgrade pip
-         pip install poetry flake8 pytest
+         pip install uv flake8 pytest
     - name: Install dependencies
       working-directory: backend
-      run: poetry install
+      run: uv sync
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
@@ -39,7 +39,7 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Run pytest
       working-directory: backend
-      run: poetry run pytest
+      run: uv run pytest
 
 
 
