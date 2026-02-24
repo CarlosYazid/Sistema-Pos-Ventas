@@ -1,6 +1,7 @@
 [project]
 name = "backend"
 version = "0.1.0"
+package-mode = false
 description = " Backend de sistema POS de ventas"
 readme = "README.md"
 requires-python = ">=3.12,<4.0"
