@@ -68,7 +68,7 @@ class ServiceCrud:
             # update service
             for key, value in fields.model_dump(exclude_unset=True).items():
 
-                if key in cls.EXCLUDED_FIELDS_FOR_UPDATE:
+                if key in ServiceCrud.EXCLUDED_FIELDS_FOR_UPDATE:
                     continue
 
                 setattr(service, key, value)
