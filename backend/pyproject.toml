@@ -32,7 +32,12 @@ line-length = 100
 target-version = "py312"
 
 [tool.ruff.lint]
-select = ["E", "F", "I"]
+select = [
+  "E",
+  "F",
+  "I",
+  "ASYNC",
+]
 
 [tool.ruff.format]
 quote-style = "double"
