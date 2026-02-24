@@ -65,7 +65,7 @@ class ProductCrud:
             
             for key, value in fields.model_dump(exclude_unset=True).items():
                     
-                if key in cls.EXCLUDED_FIELDS_FOR_UPDATE:
+                if key in ProductCrud.EXCLUDED_FIELDS_FOR_UPDATE:
                     continue
                     
                 setattr(product, key, value)
