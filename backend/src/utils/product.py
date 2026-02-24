@@ -31,12 +31,12 @@ class ProductUtils:
     async def upload_image(storage_client : BaseClient, image: UploadFile) -> str:
         """Upload an image to the storage."""
 
-        if image.content_type not in cls.ALLOWED_IMAGE_TYPES:
+        if image.content_type not in ProductUtils.ALLOWED_IMAGE_TYPES:
             raise HTTPException(
                 status_code=400,
                 detail=(
                     f"Invalid image type: {image.content_type}. "
-                    f"Allowed types are: {', '.join(cls.ALLOWED_IMAGE_TYPES)}"
+                    f"Allowed types are: {', '.join(ProductUtils.ALLOWED_IMAGE_TYPES)}"
                 ),
             )
 
