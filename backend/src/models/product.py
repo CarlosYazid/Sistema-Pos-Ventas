@@ -1,18 +1,42 @@
-from typing import Optional, TYPE_CHECKING
 from datetime import date
+from typing import TYPE_CHECKING, Optional
 
-from sqlmodel import SQLModel, Relationship, Field
+from sqlalchemy import Column, ForeignKey, Index, Integer
+from sqlmodel import Field, Relationship, SQLModel
 
-from models.abs import BaseModel
+from .abc import BaseModel
+from .service import ServiceInput
 
 if TYPE_CHECKING:
-    from models.service import ServiceInput
-    from models.order import OrderProduct
+    from .order import OrderProduct
+    from .service import Service
+
+
+class ProductCategory(SQLModel, table=True):
+    __table_args__ = (Index("ix_pc_category_id", "category_id"),)
+
+    product_id: int = Field(
+        sa_column=Column(
+            Integer,
+            ForeignKey("product.id", ondelete="CASCADE"),
+            primary_key=True,
+        )
+    )
+
+    category_id: int = Field(
+        sa_column=Column(
+            Integer,
+            ForeignKey("category.id", ondelete="CASCADE"),
+            primary_key=True,
+        )
+    )
+
 
 class Product(BaseModel, table=True):
     """
     Product model for the database.
     """
+
     name: str = Field(..., description="Product's name")
     short_description: Optional[str] = Field(None, description="Short description of the product")
     price: float = Field(..., description="Product's price")
@@ -20,28 +44,43 @@ class Product(BaseModel, table=True):
     stock: int = Field(..., description="Available stock of the product")
     minimum_stock: int = Field(..., description="Minimum stock level of the product")
     image_key: Optional[str] = Field(None, description="Key of the product image")
-    expiration_date: Optional[date] = Field(None, description="Expiration date of the consumable product")
+    expiration_date: Optional[date] = Field(
+        None, description="Expiration date of the consumable product"
+    )
 
-    service_inputs: Optional[list['ServiceInput']] = Relationship(back_populates="product", sa_relationship_kwargs={"lazy": "selectin"})
-    product_categories: Optional[list['ProductCategory']] = Relationship(back_populates="product", sa_relationship_kwargs={"lazy": "selectin"})
-    order_products: Optional[list['OrderProduct']] = Relationship(back_populates="product", sa_relationship_kwargs={"lazy": "selectin"})
+    services: list["Service"] = Relationship(
+        back_populates="products",
+        link_model=ServiceInput,
+        sa_relationship_kwargs={
+            "lazy": "selectin",
+            "passive_deletes": True,
+        },
+    )
 
-    
-class ProductCategory(SQLModel, table=True):
-    """
-    ProductCategory model for the database.
-    """
-    product_id: int = Field(foreign_key="product.id", primary_key=True, index = True)
-    category_id: int = Field(foreign_key="category.id", primary_key=True, index = True)
+    categories: list["Category"] = Relationship(
+        back_populates="products",
+        link_model=ProductCategory,
+        sa_relationship_kwargs={
+            "lazy": "selectin",
+            "passive_deletes": True,
+        },
+    )
 
-    product: 'Product' = Relationship(back_populates="product_categories")
-    category: 'Category' = Relationship(back_populates="product_categories")
+    order_products: Optional[list["OrderProduct"]] = Relationship(
+        back_populates="product", sa_relationship_kwargs={"lazy": "selectin"}
+    )
+
 
 class Category(BaseModel, table=True):
     """
     Category model for the database.
     """
+
     name: str = Field(..., description="Category's name")
     description: str = Field(..., description="Category's description")
-    
-    product_categories: Optional[list['ProductCategory']] = Relationship(back_populates="category", sa_relationship_kwargs={"lazy": "selectin"})
+
+    products: list["Product"] = Relationship(
+        back_populates="categories",
+        link_model=ProductCategory,
+        sa_relationship_kwargs={"lazy": "selectin", "passive_deletes": True},
+    )

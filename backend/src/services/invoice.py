@@ -1,28 +1,20 @@
-from fastapi import HTTPException
-from weasyprint import HTML
+# from db import get_db_client
 
-from models import Invoice, InvoiceItem, Email, File
-from crud import OrderCrud, ProductCrud, ServiceCrud, UserCrud
-from core import SETTINGS
-from services import EmailService
-#from db import get_db_client
-from utils import OrderUtils
 
 class InvoiceService:
-   
-   """
-    
+    """
+
     @classmethod
     async def workflow(cls, order_id: int, tax_rate: float):
-        
+
         invoice = await cls.generate_invoice(order_id, tax_rate)
         await cls.generate_invoice_pdf(invoice)
         return invoice
-    
-    
+
+
     @classmethod
     async def generate_invoice(cls, order_id: int, tax_rate : float) -> Invoice:
-        
+
         order = await OrderCrud.read_order(order_id)
         client = await UserCrud.read_client(order.client_id)
 
@@ -30,14 +22,14 @@ class InvoiceService:
             order_products = await OrderCrud.read_orders_products_by_order_id(order_id)
         else:
             order_products = []
-        
+
         if (await OrderUtils.exist_order_services_in_orders(order.id)):
             order_services = await OrderCrud.read_orders_services_by_order_id(order_id)
         else:
             order_services = []
 
         invoice_items = []
-        
+
         for order_product in order_products:
 
             product = await ProductCrud.read_product_base(order_product.product_id)
@@ -47,7 +39,7 @@ class InvoiceService:
                 quantity=order_product.quantity,
                 unit_price=product.price
             ))
-            
+
         for order_service in order_services:
 
             service = await ServiceCrud.read_service_base(order_service.service_id)
@@ -65,10 +57,10 @@ class InvoiceService:
             date=order.created_at,
             tax_rate=tax_rate
         )
-    
+
     @classmethod
     async def generate_invoice_pdf(cls, invoice: Invoice) -> str:
-        
+
         template = SETTINGS.jinja_env.get_template("invoice_pdf.html")
         html = template.render(
             invoice={
@@ -102,7 +94,7 @@ class InvoiceService:
 
     @classmethod
     async def generate_email_invoice(cls, invoice: Invoice) -> str:
-        
+
         template = SETTINGS.jinja_env.get_template("invoice_email.html")
         return template.render(
             invoice= {
@@ -122,11 +114,11 @@ class InvoiceService:
             current_year=invoice.date.year,
             items=[item.model_dump() for item in invoice.items]
         )
-        
+
     @classmethod
     async def send_invoice_email(cls, invoice: Invoice):
-        
-        
+
+
         subject = f"Factura #{invoice.number}"
         body = await cls.generate_email_invoice(invoice)
 
@@ -144,12 +136,12 @@ class InvoiceService:
         )
 
         EmailService.send_email(email)
-        
+
         try:
             remove(file_path)
         except:
             pass
-    
+
     @classmethod
     async def upload_invoice(cls, invoice : Invoice):
 
@@ -173,11 +165,13 @@ class InvoiceService:
         if not bool(response):
             raise HTTPException(status_code=500, detail="Failed to upload invoice")
 
-        invoice_url = f"{SETTINGS.db_url}/storage/v1/object/public/{SETTINGS.bucket_name}/{filename}"
-        
-        response = await client.table(SETTINGS.order_table).update({"invoice_link": invoice_url}).eq("id", invoice.number).execute()
+        invoice_url = f"{SETTINGS.db_url}
+        /storage/v1/object/public/{SETTINGS.bucket_name}/{filename}"
+
+        response = await client.table(SETTINGS.order_table)
+        .update({"invoice_link": invoice_url}).eq("id", invoice.number).execute()
 
         if not bool(response.data):
             raise HTTPException(status_code=500, detail="Failed to update product with invoice URL")
 
-"""
+    """

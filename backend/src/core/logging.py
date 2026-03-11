@@ -1,23 +1,14 @@
 import asyncio
-import sys
 from functools import wraps
 from time import perf_counter
-from typing import Callable, Any
+from typing import Any, Callable
 
+import logfire
 from pydantic import BaseModel
 from sqlmodel import SQLModel
-import logfire
-
-from core.settings import SETTINGS
-
-def setup_logging() -> None:
-    
-    logfire.configure(
-        service_name=SETTINGS.app_name,
-        environment=SETTINGS.environment,
-    )
 
 PRIMITIVES = (str, int, float, bool, type(None))
+
 
 def sanitize_value(value: Any):
     if isinstance(value, PRIMITIVES):
@@ -37,9 +28,9 @@ def sanitize_value(value: Any):
 
     return f"<{value.__class__.__name__}>"
 
+
 def log_operation(log_args: bool = False):
     def decorator(func: Callable):
-
         @wraps(func)
         async def async_wrapper(*args, **kwargs):
             start_time = perf_counter()
@@ -47,32 +38,24 @@ def log_operation(log_args: bool = False):
             with logfire.span(func.__doc__ or func.__name__) as span:
                 try:
                     if log_args:
-                        
-                        span.set_attribute(
-                            "args",
-                            sanitize_value(args)
-                        )
-                        
+                        span.set_attribute("args", sanitize_value(args))
+
                         if kwargs:
-                            span.set_attribute(
-                                "kwargs",
-                                sanitize_value(kwargs)
-                            )
+                            span.set_attribute("kwargs", sanitize_value(kwargs))
 
                     result = await func(*args, **kwargs)
                     span.set_attribute("success", True)
+
                     return result
 
                 except Exception as e:
                     span.set_attribute("success", False)
                     span.set_attribute("error", str(e))
+
                     raise
 
                 finally:
-                    span.set_attribute(
-                        "duration_ms",
-                        (perf_counter() - start_time) * 1000
-                    )
+                    span.set_attribute("duration_ms", (perf_counter() - start_time) * 1000)
 
         @wraps(func)
         def sync_wrapper(*args, **kwargs):
@@ -81,31 +64,24 @@ def log_operation(log_args: bool = False):
             with logfire.span(func.__doc__ or func.__name__) as span:
                 try:
                     if log_args:
-                        span.set_attribute(
-                            "args",
-                            sanitize_value(args)
-                        )
-                        
+                        span.set_attribute("args", sanitize_value(args))
+
                         if kwargs:
-                            span.set_attribute(
-                                "kwargs",
-                                sanitize_value(kwargs)
-                            )
+                            span.set_attribute("kwargs", sanitize_value(kwargs))
 
                     result = func(*args, **kwargs)
                     span.set_attribute("success", True)
+
                     return result
 
                 except Exception as e:
                     span.set_attribute("success", False)
                     span.set_attribute("error", str(e))
+
                     raise
 
                 finally:
-                    span.set_attribute(
-                        "duration_ms",
-                        (perf_counter() - start_time) * 1000
-                    )
+                    span.set_attribute("duration_ms", (perf_counter() - start_time) * 1000)
 
         return async_wrapper if asyncio.iscoroutinefunction(func) else sync_wrapper
 

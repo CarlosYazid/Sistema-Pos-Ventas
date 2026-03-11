@@ -1,0 +1,61 @@
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: runtime
+
+    env_file:
+      - ../../.env
+
+    volumes:
+      - ../src:/app/src:cached
+
+    ports:
+      - "${PORT:-8080}:${PORT:-8080}"
+    
+    command: >
+      uvicorn src.main:app
+      --host ${HOST:-0.0.0.0}
+      --port ${PORT:-8080}
+      --reload
+
+    environment:
+      PYTHONUNBUFFERED: 1
+
+    depends_on:
+      - supertokens
+
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:${PORT:-8080}/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  supertokens:
+    image: supertokens/supertokens-postgresql:latest
+    environment:
+      POSTGRESQL_CONNECTION_URI: "${SUPERTOKENS_DB_URI}"
+
+    ports:
+      - "${SUPERTOKENS_PORT:-3567}:3567"
+
+    volumes:
+      - supertokens_data_dev:/var/lib/supertokens
+
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:${SUPERTOKENS_PORT:-3567}/hello || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+
+    restart: unless-stopped
+
+volumes:
+  supertokens_data_dev:

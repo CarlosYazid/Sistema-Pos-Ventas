@@ -1,9 +1,10 @@
 import aioboto3
 from botocore.client import Config
 
-from core import SETTINGS
+from .settings import SETTINGS
 
 SESSION = aioboto3.Session()
+
 
 async def get_e2_client():
     async with SESSION.client(

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>{{ app_name }} — Verifica tu correo</title>
+    <style>
+      body,table,td,a{ -webkit-text-size-adjust:100%; -ms-text-size-adjust:100%; }
+      table,td{ mso-table-lspace:0pt; mso-table-rspace:0pt; }
+      img{ -ms-interpolation-mode:bicubic; }
+      body{ margin:0; padding:0; width:100% !important; background:#f5f7fb; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; color:#334155; }
+      .container{ max-width:600px; margin:28px auto; background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 6px 18px rgba(15,23,42,0.06); }
+      .header{ padding:20px 24px; text-align:center; background:linear-gradient(180deg,#ffffff,#fbfdff); }
+      .brand{ font-weight:700; font-size:20px; color:#0f172a; text-decoration:none; }
+      .body{ padding:28px 32px; line-height:1.5; font-size:16px; }
+      .title{ font-size:18px; font-weight:600; margin-bottom:8px; color:#0b1220; }
+      .lead{ margin-bottom:18px; color:#475569; }
+      .cta{ text-align:center; margin:22px 0; }
+      .btn{ display:inline-block; padding:12px 22px; border-radius:8px; text-decoration:none; font-weight:600; background:#0ea5e9; color:#ffffff; }
+      .fallback{ font-size:13px; color:#6b7280; word-break:break-all; margin-top:12px; }
+      .note{ margin-top:18px; font-size:13px; color:#6b7280; }
+      .footer{ padding:18px 24px; text-align:center; font-size:13px; color:#88939b; background:#f8fafc; }
+      @media screen and (max-width:420px){
+        .body{ padding:18px; font-size:15px; }
+        .btn{ width:100%; display:block; padding:14px; box-sizing:border-box; }
+      }
+    </style>
+  </head>
+
+  <body>
+    <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+      <tr>
+        <td align="center">
+          <table class="container" cellpadding="0" cellspacing="0" role="presentation">
+            <tr>
+              <td class="header">
+                <a class="brand" href="#" target="_blank">{{ app_name }}</a>
+              </td>
+            </tr>
+
+            <tr>
+              <td class="body">
+                <div class="title">Verifica tu correo</div>
+
+                <div class="lead">
+                  Hola, hemos recibido una solicitud para verificar la dirección de correo <strong>{{ email }}</strong> en <strong>{{ app_name }}</strong>.
+                </div>
+
+                <div class="cta">
+                  <a class="btn" href="{{ verify_link }}" target="_blank" rel="noopener">Verificar mi correo</a>
+                </div>
+
+                <div class="fallback">
+                  Si el botón no funciona, copia y pega este enlace en tu navegador:
+                  <div style="margin-top:8px;">
+                    <a href="{{ verify_link }}" target="_blank" rel="noopener" style="color:#0ea5e9; text-decoration:underline;">{{ verify_link }}</a>
+                  </div>
+                </div>
+
+                <p class="note">
+                  Por seguridad, este enlace expirará pronto. Si no solicitaste esta verificación, puedes ignorar este correo.
+                </p>
+
+                <p style="margin-top:18px;">
+                  Saludos,<br/>
+                  El equipo de <strong>{{ app_name }}</strong>
+                </p>
+              </td>
+            </tr>
+
+            <tr>
+              <td class="footer">
+                <div>Si tienes problemas, contacta al soporte y proporciona este correo: <strong>{{ email }}</strong></div>
+              </td>
+            </tr>
+
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

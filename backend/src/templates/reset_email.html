@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>{{ app_name }} — Restablecer contraseña</title>
+    <style>
+      /* Reset básico */
+      body,table,td,a{ -webkit-text-size-adjust:100%; -ms-text-size-adjust:100%; }
+      table,td{ mso-table-lspace:0pt; mso-table-rspace:0pt; }
+      img{ -ms-interpolation-mode:bicubic; }
+      body{ margin:0; padding:0; width:100% !important; height:100% !important; background-color:#f4f6f8; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; color:#333333; }
+
+      .email-wrapper{ width:100%; background-color:#f4f6f8; padding:32px 16px; }
+      .email-content{ max-width:600px; margin:0 auto; background:#ffffff; border-radius:8px; overflow:hidden; box-shadow:0 2px 8px rgba(20,20,30,0.06); }
+
+      .email-hero{ padding:24px; text-align:center; background:linear-gradient(180deg,#ffffff,#fbfdff); }
+      .brand{ font-weight:700; font-size:20px; color:#111827; text-decoration:none; }
+
+      .email-body{ padding:28px 32px; line-height:1.5; font-size:16px; color:#334155; }
+      .greeting{ font-size:18px; font-weight:600; margin-bottom:8px; color:#0f172a; }
+      .lead{ margin-bottom:18px; color:#475569; }
+
+      .btn-wrap{ text-align:center; margin:22px 0; }
+      .btn{ display:inline-block; padding:12px 22px; border-radius:8px; text-decoration:none; font-weight:600; background:#2563eb; color:#ffffff; }
+      .fallback{ font-size:13px; color:#6b7280; word-break:break-all; }
+
+      .note{ margin-top:18px; font-size:13px; color:#6b7280; }
+      .footer{ padding:18px 24px; background:#f8fafc; text-align:center; font-size:13px; color:#88939b; }
+      .small{ font-size:12px; color:#94a3b8; }
+
+      @media screen and (max-width:420px){
+        .email-body{ padding:20px; font-size:15px; }
+        .btn{ width:100%; box-sizing:border-box; padding:14px; display:block; }
+      }
+    </style>
+  </head>
+
+  <body>
+    <table class="email-wrapper" cellpadding="0" cellspacing="0" role="presentation">
+      <tr>
+        <td align="center">
+          <table class="email-content" cellpadding="0" cellspacing="0" role="presentation">
+            <!-- Header / Brand -->
+            <tr>
+              <td class="email-hero">
+                <a class="brand" href="#" target="_blank">{{ app_name }}</a>
+              </td>
+            </tr>
+
+            <!-- Body -->
+            <tr>
+              <td class="email-body">
+                <div class="greeting">Hola,</div>
+
+                <div class="lead">
+                  Hemos recibido una solicitud para restablecer la contraseña de la cuenta asociada a <strong>{{ email }}</strong>.
+                </div>
+
+                <div class="btn-wrap">
+                  <a class="btn" href="{{ reset_link }}" target="_blank" rel="noopener">Restablecer mi contraseña</a>
+                </div>
+
+                <div class="fallback">
+                  Si el botón anterior no funciona, copia y pega este enlace en tu navegador:
+                  <div style="margin-top:8px; color:#0b1220;">
+                    <a href="{{ reset_link }}" target="_blank" rel="noopener" style="color:#2563eb; text-decoration:underline;">{{ reset_link }}</a>
+                  </div>
+                </div>
+
+                <p class="note">
+                  Este enlace expirará pronto por seguridad. Si no solicitaste este cambio, puedes ignorar este correo y tu contraseña permanecerá igual.
+                </p>
+
+                <p style="margin-top:20px;">
+                  Saludos,<br/>
+                  El equipo de <strong>{{ app_name }}</strong>
+                </p>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td class="footer">
+                <div class="small">
+                  Si continúas teniendo problemas, contacta con soporte y facilita este email: <strong>{{ email }}</strong>
+                </div>
+              </td>
+            </tr>
+
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
