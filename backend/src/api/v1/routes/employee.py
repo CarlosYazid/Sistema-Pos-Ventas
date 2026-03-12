@@ -1,13 +1,27 @@
+import supertokens_python as supertokens
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import JSONResponse
 from fastapi_pagination import Page
 from fastapi_pagination.ext.sqlalchemy import apaginate
 from fastapi_querybuilder import QueryBuilder
 from sqlmodel.ext.asyncio.session import AsyncSession
+from supertokens_python.recipe.emailpassword.asyncio import (
+    update_email_or_password,
+    verify_credentials,
+)
+from supertokens_python.recipe.emailpassword.types import RecipeUserId
+from supertokens_python.recipe.session.asyncio import revoke_all_sessions_for_user
 
-from core import require_scope
+from core import SETTINGS, require_scope
 from db import get_session
 from models import Employee
-from schemas import EmployeeCreate, EmployeeProfileComplete, EmployeeRead, EmployeeUpdate
+from schemas import (
+    ChangePassword,
+    EmployeeCreate,
+    EmployeeProfileComplete,
+    EmployeeRead,
+    EmployeeUpdate,
+)
 from services import EmployeeService
 
 router = APIRouter(prefix="/employee", tags=["Employee"])
@@ -15,103 +29,37 @@ router = APIRouter(prefix="/employee", tags=["Employee"])
 EMPLOYEE_SERVICE = EmployeeService()
 
 
-@router.post("/employee", response_model=EmployeeRead)
+@router.post("/", response_model=EmployeeRead)
 async def create_employee(
     employee: EmployeeCreate,
     session: AsyncSession = Depends(get_session),
     _: object = Depends(require_scope("employees:write")),
 ):
+
     return await EMPLOYEE_SERVICE.create(employee, session)
 
 
-@router.get("/employee/{employee_id}", response_model=EmployeeRead)
+@router.get("/{employee_id}", response_model=EmployeeRead)
 async def read_employee(
     employee_id: int,
     session: AsyncSession = Depends(get_session),
     _: object = Depends(require_scope("employees:read")),
 ):
+
     return await EMPLOYEE_SERVICE.read(employee_id, session)
 
 
-@router.get("/employee/email/{email}", response_model=EmployeeRead)
-async def read_employee_by_email(
-    email: str,
-    session: AsyncSession = Depends(get_session),
-    _: object = Depends(require_scope("employees:read")),
-):
-    return await EMPLOYEE_SERVICE.read_by_email(email, session)
-
-
-@router.get("/employee/documentid/{documentid}", response_model=EmployeeRead)
-async def read_employee_by_documentid(
-    documentid: int,
-    session: AsyncSession = Depends(get_session),
-    _: object = Depends(require_scope("employees:read")),
-):
-    return await EMPLOYEE_SERVICE.read_by_documentid(documentid, session)
-
-
-@router.patch("/employee", response_model=EmployeeRead)
+@router.patch("/", response_model=EmployeeRead)
 async def update_employee(
     fields: EmployeeUpdate,
     session: AsyncSession = Depends(get_session),
-    current_employee: Employee = Depends(require_scope("employees:self:write")),
+    current_employee: Employee = Depends(require_scope("employees:write")),
 ):
-    if fields.id is not None and fields.id != current_employee.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You can only update your own employee profile.",
-        )
 
     return await EMPLOYEE_SERVICE.update(fields, session)
 
 
-@router.patch("/employee/email", response_model=EmployeeRead)
-async def update_employee_by_email(
-    fields: EmployeeUpdate,
-    session: AsyncSession = Depends(get_session),
-    current_employee: Employee = Depends(require_scope("employees:self:write")),
-):
-    if fields.email is not None and fields.email.lower() != current_employee.email.lower():
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You can only update your own employee profile.",
-        )
-
-    return await EMPLOYEE_SERVICE.update_by_email(fields, session)
-
-
-@router.patch("/employee/documentid", response_model=EmployeeRead)
-async def update_employee_by_documentid(
-    fields: EmployeeUpdate,
-    session: AsyncSession = Depends(get_session),
-    current_employee: Employee = Depends(require_scope("employees:self:write")),
-):
-    if fields.documentid is not None and fields.documentid != current_employee.documentid:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You can only update your own employee profile.",
-        )
-
-    return await EMPLOYEE_SERVICE.update_by_documentid(fields, session)
-
-
-@router.patch("/employee/profile/complete", response_model=EmployeeRead)
-async def complete_employee_profile(
-    data: EmployeeProfileComplete,
-    session: AsyncSession = Depends(get_session),
-    current_employee: object = Depends(require_scope("employees:self:write")),
-):
-    if data.email.lower() != current_employee.email.lower():
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You can only complete your own employee profile.",
-        )
-
-    return await EMPLOYEE_SERVICE.complete_profile_by_email(data, session)
-
-
-@router.delete("/employee/{employee_id}")
+@router.delete("/{employee_id}")
 async def delete_employee(
     employee_id: int,
     session: AsyncSession = Depends(get_session),
@@ -120,28 +68,83 @@ async def delete_employee(
     return await EMPLOYEE_SERVICE.delete(employee_id, session)
 
 
-@router.delete("/employee/email/{email}")
-async def delete_employee_by_email(
-    email: str,
-    session: AsyncSession = Depends(get_session),
-    _: object = Depends(require_scope("employees:write")),
-):
-    return await EMPLOYEE_SERVICE.delete_by_email(email, session)
-
-
-@router.delete("/employee/documentid/{documentid}")
-async def delete_employee_by_documentid(
-    documentid: int,
-    session: AsyncSession = Depends(get_session),
-    _: object = Depends(require_scope("employees:write")),
-):
-    return await EMPLOYEE_SERVICE.delete_by_documentid(documentid, session)
-
-
-@router.get("/employee", response_model=Page[EmployeeRead])
+@router.get("/", response_model=Page[EmployeeRead])
 async def list_employees(
     query=QueryBuilder(Employee),
     session: AsyncSession = Depends(get_session),
-    _: object = Depends(require_scope("employees:all:read")),
+    _: object = Depends(require_scope("employees:read")),
 ):
     return await apaginate(session, query)
+
+
+@router.get("/me", response_model=EmployeeRead)
+async def read_me(current_employee: Employee = Depends(require_scope("employee:self:read"))):
+
+    return current_employee
+
+
+@router.patch("/me/complete", response_model=EmployeeRead)
+async def complete_employee_profile(
+    data: EmployeeProfileComplete,
+    session: AsyncSession = Depends(get_session),
+    current_employee: Employee = Depends(require_scope("employee:self:write")),
+):
+
+    if data.user_id != current_employee.user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can only complete your own employee profile.",
+        )
+
+    return await EMPLOYEE_SERVICE.complete_profile(data, current_employee, session)
+
+
+@router.patch("/me/change-email", response_model=EmployeeRead)
+async def change_email(
+    email: str,
+    session: AsyncSession = Depends(get_session),
+    current_employee: Employee = Depends(require_scope("employee:self:write")),
+):
+
+    await update_email_or_password(
+        recipe_user_id=RecipeUserId(current_employee.user_id), email=email
+    )
+
+    return await EMPLOYEE_SERVICE.update_email(email, current_employee, session)
+
+
+@router.patch("/me/change-password")
+async def change_password(
+    fields: ChangePassword,
+    current_employee: Employee = Depends(require_scope("employee:self:write")),
+):
+
+    user = await supertokens.get_user(current_employee.user_id)
+
+    login_method = next(lm for lm in user.login_methods if lm.recipe_id == "emailpassword")
+
+    if login_method is None:
+        raise HTTPException(400, "User has no password")
+
+    email = login_method.email
+
+    result = await verify_credentials(
+        tenant_id=SETTINGS.tenant_id, email=email, password=fields.old_password
+    )
+
+    if result.status != "OK":
+        raise HTTPException(401, "Incorrect password")
+
+    await update_email_or_password(
+        recipe_user_id=RecipeUserId(current_employee.user_id), password=fields.new_password
+    )
+
+    await revoke_all_sessions_for_user(current_employee.user_id)
+
+    return JSONResponse(
+        content={
+            "user_id": current_employee.user_id,
+            "email": email,
+        },
+        status_code=200,
+    )

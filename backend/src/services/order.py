@@ -5,7 +5,7 @@ from core import (
     InsufficientStockError,
     NotFoundError,
 )
-from models import OrderProduct
+from models import OrderProduct, Product, Service
 from models import OrderService as OrderServiceModel
 from repositories import OrderRepository
 from services.abc import AbstractAssociationService, AbstractService
@@ -17,10 +17,10 @@ class OrderService(BaseService[OrderRepository]):
     def __init__(
         self,
         fields_exclude: set[str] | None = None,
-        product_service: AbstractService | None = None,
-        service_service: AbstractService | None = None,
-        order_product_service: AbstractAssociationService | None = None,
-        order_service_service: AbstractAssociationService | None = None,
+        product_service: AbstractService[Product] | None = None,
+        service_service: AbstractService[Service] | None = None,
+        order_product_service: AbstractAssociationService[OrderProduct] | None = None,
+        order_service_service: AbstractAssociationService[OrderServiceModel] | None = None,
     ):
         super().__init__(OrderRepository(fields_exclude))
         self.product_service = product_service
@@ -48,6 +48,7 @@ class OrderService(BaseService[OrderRepository]):
     async def update_quantity_product(
         self, order_product: OrderProduct, session: AsyncSession
     ) -> OrderProduct:
+
         if not await self.product_service.check_stock(
             order_product.product_id, order_product.quantity, session
         ):
@@ -64,6 +65,7 @@ class OrderService(BaseService[OrderRepository]):
     async def add_service(
         self, order_service: OrderServiceModel, session: AsyncSession
     ) -> OrderServiceModel:
+
         if not await self.repository.exists(order_service.order_id, session):
             raise NotFoundError(self.entity)
 

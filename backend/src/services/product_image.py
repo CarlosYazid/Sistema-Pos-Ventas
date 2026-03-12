@@ -9,13 +9,16 @@ from services.abc import AbstractService
 
 
 class ProductImageService:
-    def __init__(self, product_service: AbstractService | None = None, utils: object | None = None):
+    def __init__(
+        self, product_service: AbstractService[Product] | None = None, utils: object | None = None
+    ):
         self.product_service = product_service
         self.utils = utils
 
     async def update_image(
         self, product_id: int, image: UploadFile, session: AsyncSession, storage_client: BaseClient
     ) -> Product:
+
         if not await self.product_service.exists(product_id, session):
             raise NotFoundError("Product")
 

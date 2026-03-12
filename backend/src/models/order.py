@@ -98,7 +98,7 @@ class Order(BaseModel, table=True):
     """
 
     client_id: int = Field(
-        foreign_key="client.id", description="User who placed the order", index=True
+        foreign_key="client.id", description="Client who placed the order", index=True
     )
 
     total_price: Optional[float] = Field(..., description="Total price of the order")

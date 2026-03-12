@@ -20,6 +20,7 @@ class BaseRepository(AbstractRepository[T]):
         super().__init__(model, fields_exclude or BaseRepository.DEFAULT_FIELD_EXCLUDE)
 
     def create(self, data: BaseCreate, session: AsyncSession) -> T:
+
         obj = self.model(**data.model_dump(exclude_unset=True, exclude_none=True))
 
         session.add(obj)
@@ -27,23 +28,15 @@ class BaseRepository(AbstractRepository[T]):
         return obj
 
     async def read(self, id: Id, session: AsyncSession) -> T | None:
+
         result = await session.exec(select(self.model).where(self.model.id == id))
 
         return result.one_or_none()
 
     async def update(self, data: BaseUpdate, session: AsyncSession) -> T | None:
-        return self._update_obj(await self.read(data.id, session), data, session)
 
-    async def delete(self, id: Id, session: AsyncSession) -> bool:
-        return await self._delete_obj(await self.read(id, session), session)
+        obj = await self.read(data.id, session)
 
-    async def exists(self, id: Id, session: AsyncSession) -> bool:
-        return bool(await session.scalar(select(exists().where(self.model.id == id))))
-
-    def base_query(self) -> Select:
-        return select(self.model)
-
-    def _update_obj(self, obj: T | None, data: BaseUpdate, session: AsyncSession) -> T | None:
         if not obj:
             return None
 
@@ -59,13 +52,22 @@ class BaseRepository(AbstractRepository[T]):
 
         return obj
 
-    async def _delete_obj(self, obj: T | None, session: AsyncSession) -> bool:
+    async def delete(self, id: Id, session: AsyncSession) -> bool:
+
+        obj = await self.read(id, session)
+
         if not obj:
             return False
 
         await session.delete(obj)
 
         return True
+
+    async def exists(self, id: Id, session: AsyncSession) -> bool:
+        return bool(await session.scalar(select(exists().where(self.model.id == id))))
+
+    def base_query(self) -> Select:
+        return select(self.model)
 
 
 class BaseAssociationRepository(AbstractAssociationRepository[AT]):
@@ -78,6 +80,7 @@ class BaseAssociationRepository(AbstractAssociationRepository[AT]):
         return criteria
 
     async def remove(self, obj: AT, session: AsyncSession) -> bool:
+
         result = await session.exec(select(self.model).where(self._build_identity_filter(obj)))
 
         obj = result.one_or_none()
@@ -89,6 +92,7 @@ class BaseAssociationRepository(AbstractAssociationRepository[AT]):
         return True
 
     async def exists(self, obj: AT, session: AsyncSession) -> bool:
+
         stmt = select(exists().where(self._build_identity_filter(obj)))
 
         return bool(await session.scalar(stmt))

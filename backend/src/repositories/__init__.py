@@ -5,8 +5,6 @@ from .abc import (
     BaseAssociationRepository,
     BaseRepository,
     Criteria,
-    DocumentId,
-    Email,
     Id,
     T,
     UserRepository,
