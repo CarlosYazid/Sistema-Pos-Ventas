@@ -6,6 +6,7 @@ from pydantic import BaseModel, EmailStr
 from .abc import AbstractCreate, AbstractUpdate, BaseCreate, BaseUpdate, UserCreate, UserUpdate
 from .client import ClientCreate, ClientRead, ClientUpdate
 from .employee import (
+    ChangePassword,
     EmployeeCreate,
     EmployeeProfileComplete,
     EmployeeRead,
@@ -33,6 +34,7 @@ __all__ = [
     "ClientCreate",
     "ClientRead",
     "ClientUpdate",
+    "ChangePassword",
     "EmployeeCreate",
     "EmployeeRead",
     "EmployeeUpdate",

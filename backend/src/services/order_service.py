@@ -12,7 +12,8 @@ class OrderServiceService(BaseAssociationService[OrderServiceRepository]):
         super().__init__(OrderServiceRepository(fields_exclude))
 
     async def update(self, order_service: OrderService, session: AsyncSession) -> OrderService:
-        if not await self.repository.exist(order_service, session):
+
+        if not await self.repository.exists(order_service, session):
             raise NotFoundError(self.entity)
 
         try:

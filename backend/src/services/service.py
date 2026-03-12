@@ -3,7 +3,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from core import (
     NotFoundError,
 )
-from models import ServiceInput
+from models import Product, ServiceInput
 from repositories import ServiceRepository
 
 from .abc import AbstractAssociationService, AbstractService, BaseService
@@ -13,14 +13,15 @@ class ServiceService(BaseService[ServiceRepository]):
     def __init__(
         self,
         fields_exclude: set[str] | None = None,
-        product_service: AbstractService | None = None,
-        service_input_service: AbstractAssociationService | None = None,
+        product_service: AbstractService[Product] | None = None,
+        service_input_service: AbstractAssociationService[ServiceInput] | None = None,
     ):
         super().__init__(ServiceRepository(fields_exclude))
         self.product_service = product_service
         self.service_input_service = service_input_service
 
     async def add_product(self, service_input: ServiceInput, session: AsyncSession) -> ServiceInput:
+
         if not await self.exists(service_input.service_id, session):
             raise NotFoundError(self.entity)
 

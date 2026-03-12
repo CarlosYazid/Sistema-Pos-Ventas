@@ -1,6 +1,7 @@
-from typing import Any, Generic, TypeVar
+from typing import Generic, TypeVar
 
 from sqlalchemy.exc import SQLAlchemyError
+from sqlmodel import SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from core.errors import (
@@ -12,30 +13,35 @@ from core.errors import (
     ReadingError,
     UpdateError,
 )
-from repositories import AT, BaseAssociationRepository, BaseRepository
+from models import BaseModel
+from repositories import BaseAssociationRepository, BaseRepository
 from schemas import BaseCreate, BaseUpdate
 
 from .contracts import AbstractAssociationService, AbstractService
 
-Repository = TypeVar("Repository", bound=BaseRepository)
-AssociationRepository = TypeVar("AssociationRepository", bound=BaseAssociationRepository)
+Repository = TypeVar("Repository", bound=BaseRepository[BaseModel])
+AssociationRepository = TypeVar("AssociationRepository", bound=BaseAssociationRepository[SQLModel])
 
 
-class BaseService(AbstractService, Generic[Repository]):
+class BaseService(AbstractService[BaseModel], Generic[Repository]):
     def __init__(self, repository: Repository):
         super().__init__(repository)
 
-    async def create(self, data: BaseCreate, session: AsyncSession) -> Any:
+    async def create(self, data: BaseCreate, session: AsyncSession) -> BaseModel:
+
         try:
             entity = self.repository.create(data, session)
+
             await session.commit()
             await session.refresh(entity)
+
             return entity
+
         except SQLAlchemyError as e:
             await session.rollback()
             raise CreationError(self.entity) from e
 
-    async def read(self, criteria: int, session: AsyncSession) -> Any:
+    async def read(self, criteria: int, session: AsyncSession) -> BaseModel:
         try:
             entity = await self.repository.read(criteria, session)
             if entity is None:
@@ -44,7 +50,8 @@ class BaseService(AbstractService, Generic[Repository]):
         except SQLAlchemyError as e:
             raise ReadingError(self.entity) from e
 
-    async def update(self, data: BaseUpdate, session: AsyncSession) -> Any:
+    async def update(self, data: BaseUpdate, session: AsyncSession) -> BaseModel:
+
         if data.id is None:
             raise MissingFieldError("id")
 
@@ -76,16 +83,15 @@ class BaseService(AbstractService, Generic[Repository]):
         return await self.repository.exists(criteria, session)
 
 
-class BaseAssociationService(
-    AbstractAssociationService,
-    Generic[AssociationRepository],
-):
+class BaseAssociationService(AbstractAssociationService[SQLModel], Generic[AssociationRepository]):
     def __init__(self, repository: AssociationRepository):
         super().__init__(repository)
 
-    async def add(self, data: AT, session: AsyncSession) -> Any:
+    async def add(self, data: SQLModel, session: AsyncSession) -> SQLModel:
+
         if await self.exists(data, session):
             raise EntityAlreadyExistsError(self.entity)
+
         try:
             entity = await self.repository.add(data, session)
             await session.commit()
@@ -95,16 +101,15 @@ class BaseAssociationService(
             await session.rollback()
             raise CreationError(self.entity) from e
 
-    async def remove(self, data: AT, session: AsyncSession) -> bool:
+    async def remove(self, data: SQLModel, session: AsyncSession) -> bool:
+
         if not await self.exists(data, session):
             raise NotFoundError(self.entity)
         try:
-            result = await self.repository.remove(data, session)
-            await session.commit()
-            return result
+            return await self.repository.remove(data, session)
         except SQLAlchemyError as e:
             await session.rollback()
             raise DeletionError(self.entity) from e
 
-    async def exists(self, data: AT, session: AsyncSession) -> bool:
+    async def exists(self, data: SQLModel, session: AsyncSession) -> bool:
         return await self.repository.exists(data, session)

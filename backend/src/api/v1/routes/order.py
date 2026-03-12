@@ -11,6 +11,7 @@ from models import OrderService as OrderServiceModel
 from schemas import OrderCreate, OrderRead, OrderUpdate
 from services import (
     InventoryService,
+    InvoiceService,
     OrderProductService,
     OrderService,
     OrderServiceService,
@@ -30,7 +31,10 @@ ORDER_SERVICE = OrderService(
     order_product_service=OrderProductService(),
     order_service_service=OrderServiceService(),
 )
+
 INVENTORY_SERVICE = InventoryService(order_service=ORDER_SERVICE)
+
+INVOICE_SERVICE = InvoiceService()
 
 
 @router.post("/", response_model=OrderRead)
@@ -39,6 +43,7 @@ async def create_order(
     session: AsyncSession = Depends(get_session),
     _: object = Depends(require_scope("orders:write")),
 ):
+
     return await ORDER_SERVICE.create(order, session)
 
 
@@ -48,6 +53,7 @@ async def read_order(
     session: AsyncSession = Depends(get_session),
     _: object = Depends(require_scope("orders:read")),
 ):
+
     return await ORDER_SERVICE.read(order_id, session)
 
 
@@ -57,6 +63,7 @@ async def update_order(
     session: AsyncSession = Depends(get_session),
     _: object = Depends(require_scope("orders:write")),
 ):
+
     return await ORDER_SERVICE.update(fields, session)
 
 
@@ -66,6 +73,7 @@ async def delete_order(
     session: AsyncSession = Depends(get_session),
     _: object = Depends(require_scope("orders:write")),
 ):
+
     return await ORDER_SERVICE.delete(order_id, session)
 
 
@@ -75,6 +83,7 @@ async def add_product(
     session: AsyncSession = Depends(get_session),
     _: object = Depends(require_scope("orders:write")),
 ):
+
     return await ORDER_SERVICE.add_product(order_product, session)
 
 
@@ -84,6 +93,7 @@ async def update_quantity_product(
     session: AsyncSession = Depends(get_session),
     _: object = Depends(require_scope("orders:write")),
 ):
+
     return await ORDER_SERVICE.update_quantity_product(order_product, session)
 
 
@@ -93,6 +103,7 @@ async def remove_product(
     session: AsyncSession = Depends(get_session),
     _: object = Depends(require_scope("orders:write")),
 ):
+
     return await ORDER_SERVICE.remove_product(order_product, session)
 
 
@@ -102,6 +113,7 @@ async def add_service(
     session: AsyncSession = Depends(get_session),
     _: object = Depends(require_scope("orders:write")),
 ):
+
     return await ORDER_SERVICE.add_service(order_service, session)
 
 
@@ -111,6 +123,7 @@ async def update_quantity_service(
     session: AsyncSession = Depends(get_session),
     _: object = Depends(require_scope("orders:write")),
 ):
+
     return await ORDER_SERVICE.update_quantity_service(order_service, session)
 
 
@@ -120,6 +133,7 @@ async def remove_service(
     session: AsyncSession = Depends(get_session),
     _: object = Depends(require_scope("orders:write")),
 ):
+
     return await ORDER_SERVICE.remove_service(order_service, session)
 
 
@@ -127,8 +141,9 @@ async def remove_service(
 async def list_orders(
     query=QueryBuilder(Order),
     session: AsyncSession = Depends(get_session),
-    _: object = Depends(require_scope("orders:all:read")),
+    _: object = Depends(require_scope("orders:read")),
 ):
+
     return await apaginate(session, query)
 
 
@@ -138,4 +153,10 @@ async def update_inventory(
     session: AsyncSession = Depends(get_session),
     _: object = Depends(require_scope("inventory:write")),
 ):
+
     return await INVENTORY_SERVICE.update_inventory(order_id, session)
+
+
+@router.post("/{order_id}/invoice")
+async def generate_invoice(_: object = Depends(require_scope("invoices:write"))):
+    pass

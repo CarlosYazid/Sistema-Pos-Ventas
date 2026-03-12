@@ -3,16 +3,17 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from core import InsufficientStockError, NotFoundError, UpdateError
-from models import Order, OrderProduct, Product
+from models import Order, OrderProduct, OrderStatus, Product
 from schemas import OrderUpdate
 from services.abc import AbstractService
 
 
 class InventoryService:
-    def __init__(self, order_service: AbstractService):
+    def __init__(self, order_service: AbstractService[Order]):
         self.order_service = order_service
 
-    async def update_inventory(self, order_id: int, session: AsyncSession) -> Order:
+    async def update_inventory(self, order_id: int, session: AsyncSession) -> Order | None:
+
         if not await self.order_service.exists(order_id, session):
             raise NotFoundError(self.order_service.entity)
 
@@ -29,7 +30,7 @@ class InventoryService:
             rows = result.all()
 
             if not rows:
-                return True
+                return None
 
             # Validation
             for row in rows:
@@ -53,12 +54,11 @@ class InventoryService:
             total = sum(row.quantity * row.price for row in rows)
 
             order = await self.order_service.update(
-                OrderUpdate(id=order_id, total_price=total), session
+                OrderUpdate(id=order_id, total_price=total, status=OrderStatus.COMPLETED), session
             )
 
             return order
 
         except SQLAlchemyError as e:
             await session.rollback()
-
             raise UpdateError(self.order_service.entity) from e

@@ -3,11 +3,12 @@ from typing import Generic
 
 from db import AbstractSession
 from repositories.abc import AT, Criteria
+from repositories.abc.contracts import AbstractAssociationRepository, AbstractRepository
 from schemas import AbstractCreate, AbstractUpdate
 
 
 class AbstractService(ABC, Generic[AT]):
-    def __init__(self, repository):
+    def __init__(self, repository: AbstractRepository[AT]):
         self.repository = repository
         self.entity = repository.model.__name__
 
@@ -48,7 +49,7 @@ class AbstractService(ABC, Generic[AT]):
 
 
 class AbstractAssociationService(ABC, Generic[AT]):
-    def __init__(self, repository):
+    def __init__(self, repository: AbstractAssociationRepository[AT]):
         self.repository = repository
         self.entity = repository.model.__name__
 

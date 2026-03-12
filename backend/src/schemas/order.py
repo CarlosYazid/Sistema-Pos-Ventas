@@ -10,11 +10,8 @@ from .abc import BaseCreate, BaseRead, BaseUpdate
 
 class OrderCreate(BaseCreate):
     client_id: int = Field(..., description="User who placed the order", gt=0)
-    total_price: Optional[float] = Field(None, description="Total price of the order", gt=0)
-    status: OrderStatus = Field(
-        default=OrderStatus.PENDING, description="Current status of the order"
-    )
     employee_id: int = Field(..., description="Employee assigned to the order", gt=0)
+    total_price: Optional[float] = Field(None, description="Total price of the order", gt=0)
 
     model_config: ConfigDict = ConfigDict(
         str_strip_whitespace=True,
@@ -23,7 +20,6 @@ class OrderCreate(BaseCreate):
             "example": {
                 "client_id": 1,
                 "total_price": 59.99,
-                "status": "Pendiente",
                 "employee_id": 1,
             }
         },

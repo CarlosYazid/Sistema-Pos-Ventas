@@ -17,6 +17,7 @@ async def create_payment(
     session: AsyncSession = Depends(get_session),
     _: object = Depends(require_scope("payments:write")),
 ):
+
     return await PAYMENT_SERVICE.create(payment, session)
 
 
@@ -26,6 +27,7 @@ async def read_payment(
     session: AsyncSession = Depends(get_session),
     _: object = Depends(require_scope("payments:read")),
 ):
+
     return await PAYMENT_SERVICE.read(payment_id, session)
 
 
@@ -35,6 +37,7 @@ async def update_payment(
     session: AsyncSession = Depends(get_session),
     _: object = Depends(require_scope("payments:write")),
 ):
+
     return await PAYMENT_SERVICE.update(fields, session)
 
 
@@ -44,4 +47,5 @@ async def delete_payment(
     session: AsyncSession = Depends(get_session),
     _: object = Depends(require_scope("payments:write")),
 ):
+
     return await PAYMENT_SERVICE.delete(payment_id, session)
