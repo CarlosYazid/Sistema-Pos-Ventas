@@ -3,7 +3,7 @@ from typing import Any, Generic, TypeVar
 from sqlalchemy.exc import SQLAlchemyError
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from core import (
+from core.errors import (
     CreationError,
     DeletionError,
     EntityAlreadyExistsError,

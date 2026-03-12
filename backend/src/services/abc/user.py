@@ -3,7 +3,7 @@ from typing import TypeVar
 from sqlalchemy.exc import SQLAlchemyError
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from core import DeletionError, MissingFieldError, NotFoundError, ReadingError, UpdateError
+from core.errors import DeletionError, MissingFieldError, NotFoundError, ReadingError, UpdateError
 from repositories import UserRepository
 from schemas import UserUpdate
 

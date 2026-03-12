@@ -7,7 +7,9 @@ from .abc import UserCreate, UserRead, UserUpdate
 
 
 class EmployeeCreate(UserCreate):
+    user_id: str = Field(None, description="SuperTokens user id")
     birth_date: Optional[date] = Field(None, description="Employee's birth date")
+    profile_completed: bool = Field(default=False, description="Has completed onboarding profile")
 
     model_config: ConfigDict = ConfigDict(
         str_strip_whitespace=True,
@@ -50,6 +52,7 @@ class EmployeeUpdate(UserUpdate):
 
 
 class EmployeeProfileComplete(BaseModel):
+    user_id: str = Field(..., description="SuperTokens user id")
     email: EmailStr = Field(..., description="Email from Employee")
     documentid: int = Field(..., description="User's document ID", gt=0)
     phone: Optional[str] = Field(None, description="User's phone number")

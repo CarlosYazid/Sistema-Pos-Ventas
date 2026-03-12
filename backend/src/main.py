@@ -14,8 +14,16 @@ from supertokens_python.framework.fastapi import get_middleware
 from uvicorn import run
 
 from api import Router
-from core import ERROR_STATUS_CODE, LIMITER, SETTINGS, ApplicationError, Environment
-from core.authentication import APP_INFO, SUPERTOKENS_CONFIG, build_recipe_list
+from core import (
+    APP_INFO,
+    ERROR_STATUS_CODE,
+    LIMITER,
+    SETTINGS,
+    SUPERTOKENS_CONFIG,
+    ApplicationError,
+    Environment,
+    build_recipe_list,
+)
 from db import close_engine, init_db, init_engine
 from middlewares import LoggingContextMiddleware
 from services.email import EmailService

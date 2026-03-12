@@ -6,7 +6,7 @@ from supertokens_python.ingredients.emaildelivery.types import EmailDeliveryInte
 from supertokens_python.recipe.emailpassword.types import PasswordResetEmailTemplateVars
 from supertokens_python.recipe.emailverification.types import VerificationEmailTemplateVars
 
-from core import SETTINGS
+from core.settings import SETTINGS
 
 
 class EmailSchema(BaseModel):
