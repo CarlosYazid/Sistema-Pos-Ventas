@@ -27,7 +27,7 @@ services:
       - supertokens
 
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://localhost:${PORT:-8080}/health || exit 1"]
+      test: ["CMD-SHELL", "curl -fsS http://${HOST:-0.0.0.0}:${PORT:-8080}/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -44,7 +44,7 @@ services:
       - supertokens_data_dev:/var/lib/supertokens
 
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://localhost:${SUPERTOKENS_PORT:-3567}/hello || exit 1"]
+      test: ["CMD-SHELL", "curl -fsS http://${HOST:-0.0.0.0}:${SUPERTOKENS_PORT:-3567}/hello || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
