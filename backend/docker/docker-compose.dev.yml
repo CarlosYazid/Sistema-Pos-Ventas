@@ -4,7 +4,9 @@ services:
       context: ..
       dockerfile: docker/Dockerfile
       target: runtime
-
+      args:
+        PORT: 8080
+        
     env_file:
       - ../../.env
 
@@ -12,22 +14,17 @@ services:
       - ../src:/app/src:cached
 
     ports:
-      - "${PORT:-8080}:${PORT:-8080}"
+      - "${PORT:-8080}:8080"
     
     command: >
       uvicorn src.main:app
-      --host ${HOST:-0.0.0.0}
-      --port ${PORT:-8080}
       --reload
-
-    environment:
-      PYTHONUNBUFFERED: 1
-
+      
     depends_on:
       - supertokens
 
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://${HOST:-0.0.0.0}:${PORT:-8080}/health || exit 1"]
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -44,7 +41,7 @@ services:
       - supertokens_data_dev:/var/lib/supertokens
 
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://${HOST:-0.0.0.0}:${SUPERTOKENS_PORT:-3567}/hello || exit 1"]
+      test: ["CMD-SHELL", "curl -fsS http://localhost:3567/hello || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
