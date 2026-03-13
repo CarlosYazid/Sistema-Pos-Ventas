@@ -4,12 +4,14 @@ services:
       context: ..
       dockerfile: docker/Dockerfile
       target: runtime
+      args:
+        PORT: 8080
 
     env_file:
       - ../../.env
 
     ports:
-      - "${PORT:-8080}:${PORT:-8080}"
+      - "${PORT:-8080}:8080"
 
     command: >
       sh -c "
@@ -17,7 +19,6 @@ services:
       gunicorn src.main:app
       -k uvicorn.workers.UvicornWorker
       -w 4
-      -b ${HOST:-0.0.0.0}:${PORT:-8080}
       "
 
     restart: unless-stopped
@@ -27,7 +28,7 @@ services:
         condition: service_healthy
 
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://${HOST:-0.0.0.0}:${PORT:-8080}/health || exit 1"]
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/health || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 5
@@ -47,7 +48,7 @@ services:
     restart: unless-stopped
 
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://${HOST:-0.0.0.0}:${SUPERTOKENS_PORT:-3567}/hello || exit 1"]
+      test: ["CMD-SHELL", "curl -fsS http://localhost:3567/hello || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 5
