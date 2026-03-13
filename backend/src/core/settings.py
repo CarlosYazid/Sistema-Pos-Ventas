@@ -31,8 +31,8 @@ class Settings(BaseSettings):
     description: str = "Sales system API REST"
     version: str = "v1"
     environment: Environment = Environment.DEVELOPMENT
-    host: str
-    port: int
+    host: str = '127.0.0.1'
+    port: int = 8080
 
     # Database
     db_url_sync: str
