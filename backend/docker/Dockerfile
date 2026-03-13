@@ -31,6 +31,8 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 # / -- runtime image -- /
 FROM base AS runtime
 
+ARG PORT
+
 # deps
 COPY --from=builder /app/.venv /app/.venv
 
@@ -39,4 +41,4 @@ ENV PATH="/app/.venv/bin:$PATH"
 # core backend
 COPY src ./src
 
-EXPOSE 8080
+EXPOSE ${PORT}
