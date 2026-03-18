@@ -156,6 +156,7 @@ async def list_orders(
 async def update_inventory(
     order_id: int,
     session: AsyncSession = Depends(get_session),
+    _: object = Depends(require_scope('inventory:write'))
     ):
 
     return await INVENTORY_SERVICE.update_inventory(order_id, session)
@@ -165,7 +166,8 @@ async def update_inventory(
     status_code=status.HTTP_201_CREATED)
 async def generate_invoice(
     fields: InvoiceCreate,
-    session: AsyncSession = Depends(get_session)):
+    session: AsyncSession = Depends(get_session),
+    _: object = Depends(require_scope('orders:write'))):
     
     return await INVOICE_SERVICE.create_invoice(fields, session)
 
@@ -173,9 +175,9 @@ async def generate_invoice(
 async def get_invoice_by_token(
     verification_token: str,
     session: AsyncSession = Depends(get_session),
-    storage_client: BaseClient = Depends(get_e2_client)):
-    
-    print('Verification token',verification_token)
+    storage_client: BaseClient = Depends(get_e2_client),
+    _: object = Depends(require_scope('orders:read'))
+    ):
     
     return await INVOICE_SERVICE.get_invoice(
         verification_token,

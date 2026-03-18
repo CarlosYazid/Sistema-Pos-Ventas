@@ -9,7 +9,8 @@ router = APIRouter(prefix="/tasks", tags=["Tasks"])
 
 @router.get("/{task_id}", response_model=TaskResult)
 async def get_task(
-    task_id: str,):
+    task_id: str,
+    _: object = Depends(require_scope('task:read'))):
     
     result = AsyncResult(task_id, app=celery_app)
 

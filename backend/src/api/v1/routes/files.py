@@ -14,7 +14,7 @@ FILESERVICE = FileService()
 async def get_file(
     key: str,
     storage_client: BaseClient = Depends(get_e2_client),
-    
+    _: object = Depends(require_scope('files:read'))
 ):
     """
     Retrieve a file by path.

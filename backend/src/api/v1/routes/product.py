@@ -38,6 +38,7 @@ async def create_product(
 async def read_product(
     product_id: int,
     session: AsyncSession = Depends(get_session),
+    _: object = Depends(require_scope("catalog:read")),
 ):
 
     return await PRODUCT_SERVICE.read(product_id, session)
@@ -59,7 +60,7 @@ async def update_product_image(
     image: UploadFile = File(..., title="photo_product"),
     storage_client: BaseClient = Depends(get_e2_client),
     session: AsyncSession = Depends(get_session),
-    
+    _: object = Depends(require_scope("catalog:write")),
 ):
 
     return await PRODUCT_IMAGE_SERVICE.update_image(product_id, image, session, storage_client)
@@ -79,7 +80,7 @@ async def delete_product(
 async def list_products(
     query=QueryBuilder(Product),
     session: AsyncSession = Depends(get_session),
-    
+    _: object = Depends(require_scope("catalog:all:read")),
 ):
 
     return await apaginate(session, query)
@@ -87,7 +88,8 @@ async def list_products(
 
 @router.get("/low-stock", response_model=Page[ProductRead])
 async def search_low_stock_products(
-    session: AsyncSession = Depends(get_session), _: object = Depends(require_scope("catalog:read"))
+    session: AsyncSession = Depends(get_session),
+    _: object = Depends(require_scope("catalog:read"))
 ):
 
     return await apaginate(session, PRODUCT_SERVICE.search_low_stock_products())
@@ -95,7 +97,8 @@ async def search_low_stock_products(
 
 @router.get("/expired", response_model=Page[ProductRead])
 async def search_expired_products(
-    session: AsyncSession = Depends(get_session), _: object = Depends(require_scope("catalog:read"))
+    session: AsyncSession = Depends(get_session),
+    _: object = Depends(require_scope("catalog:read"))
 ):
 
     return await apaginate(session, PRODUCT_SERVICE.search_expired_products())
