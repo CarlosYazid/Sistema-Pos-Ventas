@@ -1,8 +1,8 @@
 from botocore.client import BaseClient
 from fastapi import APIRouter, Depends
 
-from core.storage import get_e2_client
 from core.auth import require_scope
+from core.storage import get_e2_client
 from services import FileService
 
 router = APIRouter(prefix="/files", tags=["Files"])
@@ -14,7 +14,7 @@ FILESERVICE = FileService()
 async def get_file(
     key: str,
     storage_client: BaseClient = Depends(get_e2_client),
-    _: object = Depends(require_scope('files:read'))
+    _: object = Depends(require_scope("files:read")),
 ):
     """
     Retrieve a file by path.

@@ -22,5 +22,5 @@ class OrderProductRepository(BaseAssociationRepository[OrderProduct]):
             return None
 
         obj.quantity = order_product.quantity
-        
+
         return obj

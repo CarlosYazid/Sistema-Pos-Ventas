@@ -5,13 +5,13 @@ from fastapi.testclient import TestClient
 from pydantic import SecretStr
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlmodel import SQLModel
+from utils.signer import sign_token
 
 from api.v1.routes.order import orders_router
 from core import get_e2_client
 from core.settings import SETTINGS
 from db import get_session
 from models import Client, Employee, Order, OrderStatus
-from utils.signer import sign_token
 
 
 class FakeStorageClient:

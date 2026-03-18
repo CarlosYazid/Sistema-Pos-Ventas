@@ -5,49 +5,37 @@ Revises: de13bc3d81ac
 Create Date: 2026-03-14 18:06:46.289140
 
 """
+
 from typing import Sequence, Union
 
-from alembic import op
 import sqlalchemy as sa
-import sqlmodel
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = 'df11857276e9'
-down_revision: Union[str, Sequence[str], None] = 'de13bc3d81ac'
+revision: str = "df11857276e9"
+down_revision: Union[str, Sequence[str], None] = "de13bc3d81ac"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
+
 def upgrade():
-    
+
     op.alter_column(
-        "expirationalert",
-        "created_at",
-        existing_type=sa.DateTime(),
-        server_default=sa.func.now()
+        "expirationalert", "created_at", existing_type=sa.DateTime(), server_default=sa.func.now()
     )
 
     op.alter_column(
-        "expirationalert",
-        "updated_at",
-        existing_type=sa.DateTime(),
-        server_default=sa.func.now()
+        "expirationalert", "updated_at", existing_type=sa.DateTime(), server_default=sa.func.now()
     )
 
     op.alter_column(
-        "stockalert",
-        "created_at",
-        existing_type=sa.DateTime(),
-        server_default=sa.func.now()
+        "stockalert", "created_at", existing_type=sa.DateTime(), server_default=sa.func.now()
     )
 
     op.alter_column(
-        "stockalert",
-        "updated_at",
-        existing_type=sa.DateTime(),
-        server_default=sa.func.now()
+        "stockalert", "updated_at", existing_type=sa.DateTime(), server_default=sa.func.now()
     )
-    
+
     # función + trigger stock
     op.execute("""
     CREATE OR REPLACE FUNCTION insert_stock_alert()
@@ -92,36 +80,21 @@ def upgrade():
     EXECUTE FUNCTION check_expiration_and_alert();
     """)
 
+
 def downgrade():
-    
+
     op.alter_column(
-        "expirationalert",
-        "created_at",
-        existing_type=sa.DateTime(),
-        server_default=None
+        "expirationalert", "created_at", existing_type=sa.DateTime(), server_default=None
     )
 
     op.alter_column(
-        "expirationalert",
-        "updated_at",
-        existing_type=sa.DateTime(),
-        server_default=None
+        "expirationalert", "updated_at", existing_type=sa.DateTime(), server_default=None
     )
 
-    op.alter_column(
-        "stockalert",
-        "created_at",
-        existing_type=sa.DateTime(),
-        server_default=None
-    )
+    op.alter_column("stockalert", "created_at", existing_type=sa.DateTime(), server_default=None)
 
-    op.alter_column(
-        "stockalert",
-        "updated_at",
-        existing_type=sa.DateTime(),
-        server_default=None
-    )
-    
+    op.alter_column("stockalert", "updated_at", existing_type=sa.DateTime(), server_default=None)
+
     op.execute("DROP TRIGGER IF EXISTS trg_check_expiration ON products;")
     op.execute("DROP FUNCTION IF EXISTS check_expiration_and_alert();")
     op.execute("DROP TRIGGER IF EXISTS trg_insert_stock_alert ON products;")

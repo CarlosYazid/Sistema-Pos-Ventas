@@ -1,7 +1,7 @@
 from pydantic import SecretStr
+from tasks.generate_invoice import generate_invoice_task
 
 from core.settings import SETTINGS
-from tasks.generate_invoice import generate_invoice_task
 
 
 class DummyTemplate:

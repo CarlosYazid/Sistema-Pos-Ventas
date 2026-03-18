@@ -13,7 +13,7 @@ from supertokens_python.recipe import (
     emailverification,
     session,
     thirdparty,
-    userroles
+    userroles,
 )
 from supertokens_python.recipe.emailpassword import EmailPasswordOverrideConfig, InputFormField
 from supertokens_python.recipe.emailpassword.interfaces import (
@@ -64,6 +64,7 @@ APP_INFO = InputAppInfo(
     website_base_path="/auth",
 )
 
+
 async def _create_employee(data: EmployeeCreate) -> None:
     if AsyncSessionLocal is None:
         logfire.warning(
@@ -86,6 +87,7 @@ async def _create_employee(data: EmployeeCreate) -> None:
             user_id=data.user_id,
             role=SETTINGS.default_role,
         )
+
 
 def _override_emailpassword_apis(
     original_implementation: EmailPasswordAPIInterface,

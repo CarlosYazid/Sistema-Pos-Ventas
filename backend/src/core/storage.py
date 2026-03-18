@@ -5,6 +5,7 @@ from .settings import SETTINGS
 
 SESSION = aioboto3.Session()
 
+
 async def get_e2_client():
     async with SESSION.client(
         "s3",

@@ -3,11 +3,11 @@ from uuid import uuid4
 from botocore.client import BaseClient
 from fastapi import UploadFile
 
-from core.settings import SETTINGS
 from core.errors import InvalidImageTypeError
+from core.settings import SETTINGS
+
 
 class ProductUtils:
-    
     ALLOWED_IMAGE_TYPES = {"image/png", "image/jpeg", "image/webp"}
 
     async def upload_image(self, image: UploadFile, storage_client: BaseClient) -> str:

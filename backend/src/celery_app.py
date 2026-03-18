@@ -2,14 +2,10 @@ from celery import Celery
 from celery.schedules import crontab
 from celery.signals import worker_process_init
 
-from core.settings import SETTINGS
 from core.observability import setup_observability
+from core.settings import SETTINGS
 
-celery_app = Celery(
-    "pos",
-    broker=SETTINGS.celery_broker_url,
-    backend=SETTINGS.celery_backend_url
-)
+celery_app = Celery("pos", broker=SETTINGS.celery_broker_url, backend=SETTINGS.celery_backend_url)
 
 celery_app.conf.update(
     timezone="America/Bogota",
@@ -43,11 +39,12 @@ celery_app.conf.beat_schedule = {
     "expired-daily": {
         "task": "expired_alerts",
         "schedule": crontab(hour=SETTINGS.cron_hour_expired_alerts, minute=0),
-    }
+    },
 }
 
 celery_app.autodiscover_tasks(["tasks"])
 
+
 @worker_process_init.connect
 def init_worker(**kwargs):
-    setup_observability(service_name='worker')
+    setup_observability(service_name="worker")

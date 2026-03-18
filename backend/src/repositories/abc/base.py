@@ -12,6 +12,7 @@ from .contracts import AT, AbstractAssociationRepository, AbstractRepository, Id
 
 T = TypeVar("T", bound=BaseModel)
 
+
 class BaseRepository(AbstractRepository[T]):
     DEFAULT_FIELD_EXCLUDE = {"id", "created_at"}
 
@@ -66,8 +67,8 @@ class BaseRepository(AbstractRepository[T]):
     def base_query(self) -> Select:
         return select(self.model)
 
+
 class BaseAssociationRepository(AbstractAssociationRepository[AT]):
-    
     def __init__(self, model: Type[AT], fields_exclude: set[str] | None = None):
         super().__init__(model, fields_exclude)
         self._pk_columns = [column.key for column in inspect(model).primary_key]

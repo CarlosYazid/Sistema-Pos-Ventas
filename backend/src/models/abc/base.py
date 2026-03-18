@@ -1,20 +1,18 @@
 from datetime import datetime
 from typing import Optional
 
-from sqlmodel import Field, SQLModel
 from sqlalchemy import text
+from sqlmodel import Field, SQLModel
+
 
 class BaseModel(SQLModel):
-    
     id: Optional[int] = Field(default=None, primary_key=True)
     created_at: datetime = Field(
-        default_factory=datetime.now,
-        sa_column_kwargs={"server_default": text("now()")}
-        )
+        default_factory=datetime.now, sa_column_kwargs={"server_default": text("now()")}
+    )
     updated_at: datetime = Field(
-        default_factory=datetime.now,
-        sa_column_kwargs={"server_default": text("now()")}
-        )
+        default_factory=datetime.now, sa_column_kwargs={"server_default": text("now()")}
+    )
 
     class Config:
         from_attributes = True

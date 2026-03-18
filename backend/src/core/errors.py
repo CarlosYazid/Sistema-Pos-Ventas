@@ -108,13 +108,16 @@ class ExpiredProductError(ProductError):
 
 # ------- Inventory ---------
 
+
 class InventoryError(ApplicationError):
     def __init__(self, message: str):
         super().__init__(message)
 
+
 class OrderWithNoProductsOrServicesError(InventoryError):
     def __init__(self, order_id: int):
-        super(f'Order {order_id} does not include any additional products or services')
+        super(f"Order {order_id} does not include any additional products or services")
+
 
 # ------- Storage ---------
 

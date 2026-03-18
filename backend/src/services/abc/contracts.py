@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Generic
 
 from db import AbstractSession
-from repositories.abc import AT, Criteria, AbstractAssociationRepository, AbstractRepository
+from repositories.abc import AT, AbstractAssociationRepository, AbstractRepository, Criteria
 from schemas.abc import AbstractCreate, AbstractUpdate
 
 

@@ -10,6 +10,7 @@ AT = TypeVar("AT", bound=AbstractModel)
 Id = int
 Criteria = Id | AT
 
+
 class AbstractRepository(ABC, Generic[AT]):
     def __init__(
         self,

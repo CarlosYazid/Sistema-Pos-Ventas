@@ -1,7 +1,7 @@
 from pydantic import SecretStr
+from utils.signer import create_verification_token, sign_token, verify_signature
 
 from core.settings import SETTINGS
-from utils.signer import create_verification_token, sign_token, verify_signature
 
 
 def test_sign_and_verify_token():

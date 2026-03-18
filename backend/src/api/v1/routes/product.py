@@ -5,8 +5,8 @@ from fastapi_pagination.ext.sqlalchemy import apaginate
 from fastapi_querybuilder import QueryBuilder
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from core.storage import get_e2_client
 from core.auth import require_scope
+from core.storage import get_e2_client
 from db import get_session
 from models import Product
 from schemas import (
@@ -88,8 +88,7 @@ async def list_products(
 
 @router.get("/low-stock", response_model=Page[ProductRead])
 async def search_low_stock_products(
-    session: AsyncSession = Depends(get_session),
-    _: object = Depends(require_scope("catalog:read"))
+    session: AsyncSession = Depends(get_session), _: object = Depends(require_scope("catalog:read"))
 ):
 
     return await apaginate(session, PRODUCT_SERVICE.search_low_stock_products())
@@ -97,8 +96,7 @@ async def search_low_stock_products(
 
 @router.get("/expired", response_model=Page[ProductRead])
 async def search_expired_products(
-    session: AsyncSession = Depends(get_session),
-    _: object = Depends(require_scope("catalog:read"))
+    session: AsyncSession = Depends(get_session), _: object = Depends(require_scope("catalog:read"))
 ):
 
     return await apaginate(session, PRODUCT_SERVICE.search_expired_products())

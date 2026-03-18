@@ -1,8 +1,8 @@
 from datetime import date
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
-from sqlmodel import Field, Relationship
 from sqlalchemy import Index, text
+from sqlmodel import Field, Relationship
 
 from .abc import BaseModel
 
@@ -11,13 +11,12 @@ if TYPE_CHECKING:
 
 
 class AlertBase(BaseModel):
-    
     product_name: str
     product_id: int = Field(foreign_key="product.id")
     notified: bool = Field(default=False)
 
-class StockAlert(AlertBase, table=True):
 
+class StockAlert(AlertBase, table=True):
     __table_args__ = (
         Index(
             "idx_stock_alerts_notified_false",
@@ -28,13 +27,13 @@ class StockAlert(AlertBase, table=True):
 
     stock: int
     minimum_stock: int
-    
+
     product: "Product" = Relationship(
-      back_populates="stock_alert", sa_relationship_kwargs={"lazy": "selectin"}
+        back_populates="stock_alert", sa_relationship_kwargs={"lazy": "selectin"}
     )
 
-class ExpirationAlert(AlertBase, table=True):
 
+class ExpirationAlert(AlertBase, table=True):
     __table_args__ = (
         Index(
             "idx_expiration_alerts_notified_false",
@@ -46,8 +45,9 @@ class ExpirationAlert(AlertBase, table=True):
     expiration_date: Optional[date] = None
 
     product: "Product" = Relationship(
-      back_populates="expiration_alert", sa_relationship_kwargs={"lazy": "selectin"}
+        back_populates="expiration_alert", sa_relationship_kwargs={"lazy": "selectin"}
     )
+
 
 """
 

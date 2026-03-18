@@ -14,16 +14,15 @@ from core.auth import (
     APP_INFO,
     SUPERTOKENS_CONFIG,
     build_recipe_list,
-    
 )
-from core.settings import (
-    Environment,
-    SETTINGS,
+from core.errors import (
+    ERROR_STATUS_CODE,
+    ApplicationError,
 )
 from core.observability import setup_observability
-from core.errors import (
-    ApplicationError,
-    ERROR_STATUS_CODE,
+from core.settings import (
+    SETTINGS,
+    Environment,
 )
 from db import close_engine, init_db, init_engine
 from middlewares import LoggingContextMiddleware
@@ -39,19 +38,21 @@ init_supertokens(
     mode="asgi" if SETTINGS.environment != Environment.PRODUCTION else "wsgi",
 )
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    
+
     setup_observability(SETTINGS.app_name, app)
-    
+
     init_engine()
-    
+
     if SETTINGS.environment == Environment.DEVELOPMENT:
         await init_db()
 
     yield
 
     await close_engine()
+
 
 app = FastAPI(
     title=SETTINGS.app_name,
@@ -63,12 +64,14 @@ app = FastAPI(
     openapi_url=None if SETTINGS.environment == Environment.PRODUCTION else "/openapi.json",
 )
 
+
 @app.exception_handler(ApplicationError)
 def application_error_handler(request: Request, exc: ApplicationError):
     return JSONResponse(
         status_code=ERROR_STATUS_CODE.get(type(exc), 500),
         content={"detail": exc.message},
     )
+
 
 add_pagination(app)
 
@@ -83,6 +86,7 @@ app.add_middleware(
 app.add_middleware(LoggingContextMiddleware)
 
 app.include_router(Router)
+
 
 @app.get("/")
 async def root():

@@ -12,8 +12,8 @@ from supertokens_python.recipe.emailpassword.asyncio import (
 from supertokens_python.recipe.emailpassword.types import RecipeUserId
 from supertokens_python.recipe.session.asyncio import revoke_all_sessions_for_user
 
-from core.settings import SETTINGS
 from core.auth import require_scope
+from core.settings import SETTINGS
 from db import get_session
 from models import Employee
 from schemas import (

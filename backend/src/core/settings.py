@@ -10,10 +10,12 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BACKEND_DIR = Path(__file__).resolve().parent.parent.parent
 
+
 class Environment(str, Enum):
     DEVELOPMENT = "dev"
     PRODUCTION = "prod"
     STAGING = "stag"
+
 
 class Settings(BaseSettings):
     BACKEND_DIR: Path = BACKEND_DIR
@@ -29,7 +31,7 @@ class Settings(BaseSettings):
     description: str = "Sales system API REST"
     version: str = "v1"
     environment: Environment = Environment.DEVELOPMENT
-    host: str = '0.0.0.0'
+    host: str = "0.0.0.0"
     port: int = 8080
     api_domain: str
     secret_key: SecretStr = Field(default=SecretStr("change-me"))
@@ -123,12 +125,13 @@ class Settings(BaseSettings):
             MAIL_SSL_TLS=self.smtp_ssl,
             USE_CREDENTIALS=self.smtp_use_credentials,
             VALIDATE_CERTS=True,
-            TEMPLATE_FOLDER=self.templates_folder + '/email',
+            TEMPLATE_FOLDER=self.templates_folder + "/email",
         )
 
         self.jinja_env = JinjaEnvironment(
             loader=FileSystemLoader(self.templates_folder),
             autoescape=select_autoescape(["html", "xml"]),
         )
+
 
 SETTINGS = Settings()

@@ -2,7 +2,12 @@ from sqlalchemy import select, update
 from sqlalchemy.exc import SQLAlchemyError
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from core.errors import InsufficientStockError, OrderWithNoProductsOrServicesError, NotFoundError, UpdateError
+from core.errors import (
+    InsufficientStockError,
+    NotFoundError,
+    OrderWithNoProductsOrServicesError,
+    UpdateError,
+)
 from models import Order, OrderProduct, OrderService, OrderStatus, Product, Service
 from schemas import OrderUpdate
 from services.abc import AbstractService
@@ -29,8 +34,7 @@ class InventoryService:
             result = await session.execute(lock_stmt)
             rows_product = result.all()
 
-            if rows_product:    
-
+            if rows_product:
                 # Validation
                 for row in rows_product:
                     if row.stock < row.quantity:
@@ -49,27 +53,27 @@ class InventoryService:
                 )
 
                 await session.execute(update_stmt)
-                
+
                 total_products = sum(row.quantity * row.price for row in rows_product)
             else:
                 total_products = 0
-            
+
             stmt = (
                 select(Service.price, OrderService.quantity)
                 .join(OrderService, OrderService.service_id == Service.id)
                 .where(OrderService.order_id == order_id)
             )
-            
+
             result = await session.execute(stmt)
             rows_services = result.all()
-            
+
             if rows_services:
                 total_services = sum(row.quantity * row.price for row in rows_services)
             else:
                 total_services = 0
-            
+
             total = total_products + total_services
-            
+
             if total <= 0:
                 raise OrderWithNoProductsOrServicesError(order_id)
 

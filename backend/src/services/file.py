@@ -1,14 +1,14 @@
 from urllib.parse import quote
+
 from botocore.client import BaseClient
 from botocore.exceptions import ClientError
 from fastapi.responses import StreamingResponse
 
-from core.settings import SETTINGS
 from core.errors import FileNotFoundError, RetrievingFileError
+from core.settings import SETTINGS
 
 
 class FileService:
-    
     async def get_file(self, key: str, storage_client: BaseClient) -> StreamingResponse:
         """Retrieve a file by name."""
 

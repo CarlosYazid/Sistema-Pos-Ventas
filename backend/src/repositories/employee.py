@@ -7,7 +7,6 @@ from .abc import UserRepository
 
 
 class EmployeeRepository(UserRepository[Employee]):
-    
     FIELDS_EXCLUDES = {
         "id",
         "created_at",

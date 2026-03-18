@@ -5,12 +5,14 @@ from fastapi_pagination.ext.sqlalchemy import apaginate
 from fastapi_querybuilder import QueryBuilder
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from core.storage import get_e2_client
 from core.auth import require_scope
+from core.storage import get_e2_client
 from db import get_session
-from models import Order, OrderProduct, OrderService as OrderServiceModel
+from models import Order, OrderProduct
+from models import OrderService as OrderServiceModel
 from schemas import InvoiceCreate, OrderCreate, OrderRead, OrderUpdate
 from services import (
+    FileService,
     InventoryService,
     InvoiceService,
     OrderProductService,
@@ -19,7 +21,6 @@ from services import (
     ProductService,
     ServiceInputService,
     ServiceService,
-    FileService
 )
 from utils.order import OrderUtils
 
@@ -38,9 +39,8 @@ ORDER_SERVICE = OrderService(
 INVENTORY_SERVICE = InventoryService(order_service=ORDER_SERVICE)
 
 INVOICE_SERVICE = InvoiceService(
-    order_service=ORDER_SERVICE,
-    file_service=FileService(),
-    utils=OrderUtils())
+    order_service=ORDER_SERVICE, file_service=FileService(), utils=OrderUtils()
+)
 
 
 @router.post("/", response_model=OrderRead)
@@ -132,6 +132,7 @@ async def update_quantity_service(
 
     return await ORDER_SERVICE.update_quantity_service(order_service, session)
 
+
 @router.delete("/service")
 async def remove_service(
     order_service: OrderServiceModel,
@@ -156,30 +157,30 @@ async def list_orders(
 async def update_inventory(
     order_id: int,
     session: AsyncSession = Depends(get_session),
-    _: object = Depends(require_scope('inventory:write'))
-    ):
+    _: object = Depends(require_scope("inventory:write")),
+):
 
     return await INVENTORY_SERVICE.update_inventory(order_id, session)
 
-@router.post(
-    "/{order_id}/invoice",
-    status_code=status.HTTP_201_CREATED)
+
+@router.post("/{order_id}/invoice", status_code=status.HTTP_201_CREATED)
 async def generate_invoice(
     fields: InvoiceCreate,
     session: AsyncSession = Depends(get_session),
-    _: object = Depends(require_scope('orders:write'))):
-    
+    _: object = Depends(require_scope("orders:write")),
+):
+
     return await INVOICE_SERVICE.create_invoice(fields, session)
+
 
 @router.get("/verify/{verification_token}")
 async def get_invoice_by_token(
     verification_token: str,
     session: AsyncSession = Depends(get_session),
     storage_client: BaseClient = Depends(get_e2_client),
-    _: object = Depends(require_scope('orders:read'))
-    ):
-    
+    _: object = Depends(require_scope("orders:read")),
+):
+
     return await INVOICE_SERVICE.get_invoice(
-        verification_token,
-        session=session,
-        storage_client=storage_client)
+        verification_token, session=session, storage_client=storage_client
+    )

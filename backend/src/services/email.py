@@ -7,6 +7,7 @@ from supertokens_python.recipe.emailverification.types import VerificationEmailT
 
 from core.settings import SETTINGS
 
+
 class EmailService:
     def __init__(self, email_conf: ConnectionConfig):
         self.fm = FastMail(email_conf)
@@ -16,6 +17,7 @@ class EmailService:
             await self.fm.send_message(message, template_name=template_name)
         else:
             await self.fm.send_message(message)
+
 
 class SuperTokensEmailVerificationService(EmailDeliveryInterface[VerificationEmailTemplateVars]):
     def __init__(self, email_service: EmailService):
@@ -34,7 +36,8 @@ class SuperTokensEmailVerificationService(EmailDeliveryInterface[VerificationEma
                 "app_name": SETTINGS.app_name,
                 "email": template_vars.user.email,
                 "verify_link": template_vars.email_verify_link,
-            })
+            },
+        )
 
         await self.email_service.send_email(email_data, template_name="email_verification.html")
 
