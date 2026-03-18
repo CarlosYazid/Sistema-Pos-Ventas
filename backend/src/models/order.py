@@ -2,7 +2,7 @@ from enum import Enum
 from typing import TYPE_CHECKING, Optional
 
 from pydantic import ConfigDict
-from sqlalchemy import Column, ForeignKey, Integer
+from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlmodel import Field, Relationship, SQLModel
 
 from .abc import BaseModel
@@ -109,6 +109,18 @@ class Order(BaseModel, table=True):
 
     employee_id: int = Field(
         foreign_key="employee.id", description="Employee assigned to the order", index=True
+    )
+
+    verification_token: Optional[str] = Field(
+        default=None,
+        sa_column=Column(String(160), unique=True, index=True),
+        description="Signed token used to verify and access the invoice",
+    )
+
+    pdf_key: Optional[str] = Field(
+        default=None,
+        sa_column=Column(String(512), unique=True, index=True),
+        description="Storage key for the generated invoice PDF",
     )
 
     order_products: Optional[list["OrderProduct"]] = Relationship(

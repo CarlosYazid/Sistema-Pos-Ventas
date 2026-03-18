@@ -4,7 +4,7 @@ from fastapi_pagination.ext.sqlalchemy import apaginate
 from fastapi_querybuilder import QueryBuilder
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from core import require_scope
+from core.auth import require_scope
 from db import get_session
 from models import Client
 from schemas import ClientCreate, ClientRead, ClientUpdate

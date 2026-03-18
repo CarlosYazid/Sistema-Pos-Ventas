@@ -22,5 +22,5 @@ class OrderServiceRepository(BaseAssociationRepository[OrderService]):
             return None
 
         obj.quantity = order_service.quantity
-        session.add(obj)
+        
         return obj

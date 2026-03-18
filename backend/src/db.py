@@ -1,4 +1,4 @@
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Protocol
 
 from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker, create_async_engine
 from sqlmodel import SQLModel
@@ -26,15 +26,18 @@ async def init_db() -> None:
     async with ENGINE.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
 
-
 async def close_engine() -> None:
     """Cierre limpio del pool."""
     if ENGINE is not None:
         await ENGINE.dispose()
-
 
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
     assert AsyncSessionLocal is not None
 
     async with AsyncSessionLocal() as session:
         yield session
+
+class AbstractSession(Protocol):
+    pass
+
+__all__ = ["AbstractSession", "get_session", "init_db", "init_engine", "close_engine"]

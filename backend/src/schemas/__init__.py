@@ -1,17 +1,13 @@
-from typing import Any, Dict, List, Optional
-
-from fastapi_mail import MessageType
-from pydantic import BaseModel, EmailStr
-
 from .abc import AbstractCreate, AbstractUpdate, BaseCreate, BaseUpdate, UserCreate, UserUpdate
 from .client import ClientCreate, ClientRead, ClientUpdate
 from .employee import (
-    ChangePassword,
     EmployeeCreate,
     EmployeeProfileComplete,
     EmployeeRead,
     EmployeeUpdate,
+    ChangePassword
 )
+from .invoice import TaskResult, InvoiceCreate
 from .order import OrderCreate, OrderRead, OrderUpdate
 from .payment import PaymentCreate, PaymentRead, PaymentUpdate
 from .product import (
@@ -55,13 +51,6 @@ __all__ = [
     "OrderCreate",
     "OrderRead",
     "OrderUpdate",
-    "EmailSchema",
+    "InvoiceCreateResponse",
+    "TaskStatusResponse",
 ]
-
-
-class EmailSchema(BaseModel):
-    body: Optional[str]
-    subject: str
-    recipients: List[EmailStr]
-    subtype: MessageType
-    template_body: Optional[Dict[str, Any]]

@@ -24,6 +24,7 @@ class ProductRepository(BaseRepository[Product]):
         result = await session.exec(
             select(Product.id)
             .where(Product.id == _id)
+            .where(Product.expiration_date != None)
             .where(Product.expiration_date > date.today())
         )
 
@@ -32,7 +33,9 @@ class ProductRepository(BaseRepository[Product]):
     def search_low_stock_products(self) -> Select:
         """Query for search products with low stock."""
         return (
-            self.base_query().where(Product.stock <= Product.minimum_stock).order_by(Product.stock)
+            self.base_query()
+            .where(Product.stock <= Product.minimum_stock)
+            .order_by(Product.stock)
         )
 
     def search_expired_products(self) -> Select:

@@ -1,7 +1,7 @@
 from sqlalchemy.exc import SQLAlchemyError
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from core import NotFoundError, UpdateError
+from core.errors import NotFoundError, UpdateError
 from models import OrderService
 from repositories import OrderServiceRepository
 from services.abc import BaseAssociationService

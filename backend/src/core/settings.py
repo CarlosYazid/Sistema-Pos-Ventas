@@ -10,12 +10,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BACKEND_DIR = Path(__file__).resolve().parent.parent.parent
 
-
 class Environment(str, Enum):
     DEVELOPMENT = "dev"
     PRODUCTION = "prod"
     STAGING = "stag"
-
 
 class Settings(BaseSettings):
     BACKEND_DIR: Path = BACKEND_DIR
@@ -31,12 +29,17 @@ class Settings(BaseSettings):
     description: str = "Sales system API REST"
     version: str = "v1"
     environment: Environment = Environment.DEVELOPMENT
-    host: str
-    port: int
+    host: str = '0.0.0.0'
+    port: int = 8080
+    api_domain: str
+    secret_key: SecretStr = Field(default=SecretStr("change-me"))
 
     # Database
     db_url_sync: str
     db_url_async: str
+    rate_limiting_url: str
+    celery_broker_url: str
+    celery_backend_url: str
 
     # Storage
     storage_endpoint_url: str
@@ -66,7 +69,9 @@ class Settings(BaseSettings):
     company_email: EmailStr
     company_phone: str
     company_address: str
-    website_domain: str = "http://localhost:3000"
+    company_logo: str
+    website_domain: str
+    inventory_url: str
     footer_message: str
 
     # Auth
@@ -81,6 +86,10 @@ class Settings(BaseSettings):
 
     # Logfire
     logfire_token: SecretStr
+
+    # Cron Jobs
+    cron_hour_low_stock_alerts: int
+    cron_hour_expired_alerts: int
 
     # CORS
     allowed_origins: list[str] = Field(default_factory=list)
@@ -114,13 +123,12 @@ class Settings(BaseSettings):
             MAIL_SSL_TLS=self.smtp_ssl,
             USE_CREDENTIALS=self.smtp_use_credentials,
             VALIDATE_CERTS=True,
-            TEMPLATE_FOLDER=self.templates_folder,
+            TEMPLATE_FOLDER=self.templates_folder + '/email',
         )
 
         self.jinja_env = JinjaEnvironment(
             loader=FileSystemLoader(self.templates_folder),
             autoescape=select_autoescape(["html", "xml"]),
         )
-
 
 SETTINGS = Settings()

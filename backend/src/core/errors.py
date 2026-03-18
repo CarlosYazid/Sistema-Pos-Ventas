@@ -106,6 +106,16 @@ class ExpiredProductError(ProductError):
         super().__init__(f"Product {product_name} has expired.")
 
 
+# ------- Inventory ---------
+
+class InventoryError(ApplicationError):
+    def __init__(self, message: str):
+        super().__init__(message)
+
+class OrderWithNoProductsOrServicesError(InventoryError):
+    def __init__(self, order_id: int):
+        super(f'Order {order_id} does not include any additional products or services')
+
 # ------- Storage ---------
 
 
@@ -150,6 +160,7 @@ ERROR_STATUS_CODE = {
     UpdateError: status.HTTP_500_INTERNAL_SERVER_ERROR,
     DeletionError: status.HTTP_500_INTERNAL_SERVER_ERROR,
     InsufficientStockError: status.HTTP_406_NOT_ACCEPTABLE,
+    OrderWithNoProductsOrServicesError: status.HTTP_406_NOT_ACCEPTABLE,
     ExpiredProductError: status.HTTP_406_NOT_ACCEPTABLE,
     ProductAlreadyAddedToOrderError: status.HTTP_409_CONFLICT,
     ProductAlreadyAddedToCategoryError: status.HTTP_409_CONFLICT,

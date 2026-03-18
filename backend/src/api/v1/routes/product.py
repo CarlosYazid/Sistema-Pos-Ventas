@@ -5,7 +5,8 @@ from fastapi_pagination.ext.sqlalchemy import apaginate
 from fastapi_querybuilder import QueryBuilder
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from core import get_e2_client, require_scope
+from core.storage import get_e2_client
+from core.auth import require_scope
 from db import get_session
 from models import Product
 from schemas import (
@@ -14,7 +15,7 @@ from schemas import (
     ProductUpdate,
 )
 from services import ProductImageService, ProductService
-from utils import ProductUtils
+from utils.product import ProductUtils
 
 router = APIRouter(prefix="/product", tags=["Product"])
 
@@ -37,7 +38,6 @@ async def create_product(
 async def read_product(
     product_id: int,
     session: AsyncSession = Depends(get_session),
-    _: object = Depends(require_scope("catalog:read")),
 ):
 
     return await PRODUCT_SERVICE.read(product_id, session)
@@ -59,7 +59,7 @@ async def update_product_image(
     image: UploadFile = File(..., title="photo_product"),
     storage_client: BaseClient = Depends(get_e2_client),
     session: AsyncSession = Depends(get_session),
-    _: object = Depends(require_scope("catalog:write")),
+    
 ):
 
     return await PRODUCT_IMAGE_SERVICE.update_image(product_id, image, session, storage_client)
@@ -79,7 +79,7 @@ async def delete_product(
 async def list_products(
     query=QueryBuilder(Product),
     session: AsyncSession = Depends(get_session),
-    _: object = Depends(require_scope("catalog:read")),
+    
 ):
 
     return await apaginate(session, query)

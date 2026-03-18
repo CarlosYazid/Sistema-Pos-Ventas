@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Factura disponible</title>
+    <style>
+      /* Estilos en head para clientes modernos; mantenemos estilos inline en elementos críticos para compatibilidad */
+      body,table,td,a{ -webkit-text-size-adjust:100%; -ms-text-size-adjust:100%; }
+      table,td{ mso-table-lspace:0pt; mso-table-rspace:0pt; }
+      img{ -ms-interpolation-mode:bicubic; display:block; }
+      body{ margin:0;padding:0;width:100% !important;background:#f4f6f8;font-family:Arial,Helvetica,sans-serif;color:#334155; }
+      .container{ max-width:600px;margin:28px auto;background:#fff;border-radius:8px;overflow:hidden;border:1px solid #e9eef2; }
+      .header{ padding:18px 20px;background:#dc3545;color:#fff; }
+      .brand{ font-weight:700;font-size:18px;color:#fff;text-decoration:none;vertical-align:middle;display:inline-block;margin-left:12px;}
+      .summary{ padding:18px 20px;background:linear-gradient(180deg,#ffffff,#fbfdff); display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap; }
+      .summary .left{ display:flex;align-items:center;gap:12px; }
+      .summary .right{ text-align:right; min-width:160px; }
+      .body{ padding:20px;line-height:1.4;font-size:15px;color:#26343f; }
+      .title{ font-size:16px;font-weight:700;margin:0 0 8px;color:#0b1220; }
+      .lead{ margin:0 0 14px;color:#475569; }
+      .table{ width:100%;border-collapse:collapse;margin-top:10px; }
+      .table th{ background:#f7fafb;color:#55636e;text-align:left;padding:10px;border-bottom:1px solid #e6eef6;font-size:13px;font-weight:700; }
+      .table td{ padding:10px;border-bottom:1px solid #f0f4f7;font-size:14px;color:#344148;vertical-align:top; }
+      .text-right{ text-align:right; }
+      .totals td{ padding:10px 8px;font-size:14px; }
+      .btn{ display:inline-block;padding:10px 16px;border-radius:8px;text-decoration:none;font-weight:700;background:#0ea5e9;color:#fff; }
+      .fallback{ font-size:13px;color:#6b7280;word-break:break-all;margin-top:12px; }
+      .note{ margin-top:12px;font-size:13px;color:#6b7280; }
+      .footer{ padding:14px 18px;text-align:center;font-size:12px;color:#88939b;background:#fafafa; }
+      @media screen and (max-width:420px){
+        .summary{ flex-direction:column; align-items:flex-start; }
+        .summary .right{ text-align:left; min-width:0; }
+        .btn{ width:100%;display:block;text-align:center; }
+      }
+    </style>
+  </head>
+
+  <body>
+    <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background:#f4f6f8;padding:20px 12px;">
+      <tr>
+        <td align="center">
+
+          <!-- Contenedor principal -->
+          <table class="container" cellpadding="0" cellspacing="0" role="presentation" width="600" style="max-width:600px;width:100%;">
+            <!-- Header rojo con logo -->
+            <tr>
+              <td class="header" style="padding:14px 16px;background:#dc3545;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                  <tr>
+                    <td style="vertical-align:middle;">
+                      <img src="{{ company.logo }}" alt="{{ company.name }} logo" height="56" style="display:inline-block;border:0;vertical-align:middle;">
+                      <span class="brand" style="display:inline-block;vertical-align:middle;margin-left:12px;color:#fff;font-size:18px;font-weight:700;">
+                        {{ company.name }}
+                      </span>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Cuerpo -->
+            <tr>
+              <td class="body" style="padding:18px 16px;background:#ffffff;">
+                <div class="title">Tu factura está lista</div>
+                <div class="lead">Hola <strong>{{ client_name }}</strong>, hemos generado tu factura. Puedes visualizarla y descargarla usando los enlaces de abajo.</div>
+
+                <!-- CTA -->
+                <div style="margin-top:18px;text-align:center;">
+                  <a class="btn" href="{{ verify_link }}" target="_blank" rel="noopener" style="display:inline-block;padding:10px 16px;border-radius:8px;background:#0ea5e9;color:#fff;font-weight:700;text-decoration:none;">
+                    Ver mi factura
+                  </a>
+                </div>
+
+                <!-- Fallback link -->
+                <div class="fallback" style="margin-top:14px;font-size:13px;color:#6b7280;text-align:left;">
+                  Si el botón no funciona, copia y pega este enlace en tu navegador:
+                  <div style="margin-top:8px;text-align:center;">
+                    <a href="{{ verify_link }}" target="_blank" rel="noopener" style="color:#0ea5e9;text-decoration:underline;">
+                      {{ verify_link }}
+                    </a>
+                  </div>
+                </div>
+
+                <p class="note" style="margin-top:14px;font-size:13px;color:#6b7280;">
+                  Este enlace permite consultar la factura original almacenada en nuestro sistema y verificar su autenticidad. Si necesitas ayuda, contáctanos en
+                  <a href="mailto:{{ company.email }}" style="color:#0ea5e9;text-decoration:none;">{{ company.email }}</a>.
+                </p>
+
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td class="footer" style="background:#fafafa;padding:12px 16px;text-align:center;color:#88939b;font-size:12px;">
+                © {{ current_year }} {{ company.name }}. Este correo se generó automáticamente como parte del proceso de facturación.
+              </td>
+            </tr>
+
+          </table>
+
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

@@ -1,12 +1,11 @@
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from core import (
+from core.errors import (
     ExpiredProductError,
     InsufficientStockError,
     NotFoundError,
 )
-from models import OrderProduct, Product, Service
-from models import OrderService as OrderServiceModel
+from models import Product, Service, OrderProduct, OrderService as OrderServiceModel
 from repositories import OrderRepository
 from services.abc import AbstractAssociationService, AbstractService
 
@@ -36,8 +35,7 @@ class OrderService(BaseService[OrderRepository]):
             raise NotFoundError(self.product_service.entity)
 
         if not await self.product_service.check_stock(
-            order_product.product_id, order_product.quantity, session
-        ):
+            order_product.product_id, order_product.quantity, session):
             raise InsufficientStockError(str(order_product.product_id))
 
         if not await self.product_service.check_expiration(order_product.product_id, session):
@@ -50,8 +48,7 @@ class OrderService(BaseService[OrderRepository]):
     ) -> OrderProduct:
 
         if not await self.product_service.check_stock(
-            order_product.product_id, order_product.quantity, session
-        ):
+            order_product.product_id, order_product.quantity, session):
             raise InsufficientStockError(str(order_product.product_id))
 
         if not await self.product_service.check_expiration(order_product.product_id, session):

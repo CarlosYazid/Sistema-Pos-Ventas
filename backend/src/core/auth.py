@@ -13,7 +13,7 @@ from supertokens_python.recipe import (
     emailverification,
     session,
     thirdparty,
-    userroles,
+    userroles
 )
 from supertokens_python.recipe.emailpassword import EmailPasswordOverrideConfig, InputFormField
 from supertokens_python.recipe.emailpassword.interfaces import (
@@ -35,20 +35,18 @@ from supertokens_python.recipe.thirdparty.interfaces import (
 )
 from supertokens_python.recipe.thirdparty.interfaces import SignInUpPostOkResult
 from supertokens_python.recipe.userroles import PermissionClaim
-from supertokens_python.recipe.userroles.asyncio import (
-    add_role_to_user,
-)
+from supertokens_python.recipe.userroles.asyncio import add_role_to_user
 from supertokens_python.recipe.userroles.interfaces import UnknownRoleError
 
-from db import main as db_main
+from db import AsyncSessionLocal
 from models import Employee
 from schemas import EmployeeCreate
-from services import EmployeeService
 from services.email import (
     EmailService,
     SuperTokensEmailVerificationService,
     SuperTokensPasswordResetService,
 )
+from services.employee import EmployeeService
 
 from .settings import SETTINGS
 
@@ -60,15 +58,14 @@ SUPERTOKENS_CONFIG = SupertokensConfig(connection_uri=SETTINGS.supertokens_url)
 
 APP_INFO = InputAppInfo(
     app_name=SETTINGS.app_name,
-    api_domain=f"{SETTINGS.host}:{SETTINGS.port}",
+    api_domain=SETTINGS.api_domain,
     website_domain=SETTINGS.website_domain,
     api_base_path="/auth",
     website_base_path="/auth",
 )
 
-
 async def _create_employee(data: EmployeeCreate) -> None:
-    if db_main.AsyncSessionLocal is None:
+    if AsyncSessionLocal is None:
         logfire.warning(
             "cannot create employee because sessionmaker is not initialized",
             user_id=data.user_id,
@@ -76,7 +73,7 @@ async def _create_employee(data: EmployeeCreate) -> None:
         )
         return
 
-    async with db_main.AsyncSessionLocal() as db_session:
+    async with AsyncSessionLocal() as db_session:
         await EMPLOYEE_SERVICE.create(data, db_session)
 
     result = await add_role_to_user(
@@ -89,7 +86,6 @@ async def _create_employee(data: EmployeeCreate) -> None:
             user_id=data.user_id,
             role=SETTINGS.default_role,
         )
-
 
 def _override_emailpassword_apis(
     original_implementation: EmailPasswordAPIInterface,
@@ -179,7 +175,7 @@ def require_scope(scope: Scope) -> Callable[..., Awaitable[Employee]]:
             )
         ),
     ) -> Employee:
-        if getattr(db_main, "AsyncSessionLocal", None) is None:
+        if AsyncSessionLocal is None:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Database session is not initialized.",
@@ -187,7 +183,7 @@ def require_scope(scope: Scope) -> Callable[..., Awaitable[Employee]]:
 
         user_id = session_container.get_user_id()
 
-        async with db_main.AsyncSessionLocal() as session:
+        async with AsyncSessionLocal() as session:
             result = await session.exec(select(Employee).where(Employee.user_id == user_id))
             employee = result.one_or_none()
 

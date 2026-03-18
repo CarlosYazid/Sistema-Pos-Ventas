@@ -3,13 +3,13 @@ from uuid import uuid4
 from botocore.client import BaseClient
 from fastapi import UploadFile
 
-from core import SETTINGS, InvalidImageTypeError, log_operation
-
+from core.settings import SETTINGS
+from core.errors import InvalidImageTypeError
 
 class ProductUtils:
+    
     ALLOWED_IMAGE_TYPES = {"image/png", "image/jpeg", "image/webp"}
 
-    @log_operation(False)
     async def upload_image(self, image: UploadFile, storage_client: BaseClient) -> str:
         """Upload an image to the storage."""
 
@@ -32,7 +32,6 @@ class ProductUtils:
 
         return image_key
 
-    @log_operation(True)
     async def delete_image(self, image_key: str, storage_client: BaseClient) -> None:
         """Delete an image from the storage."""
 

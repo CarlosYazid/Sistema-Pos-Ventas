@@ -81,6 +81,8 @@ ENVIRONMENT=dev   # dev | prod | stag
 # Base de datos
 DB_URL_SYNC=postgresql://user:pass@localhost:5432/dbname
 DB_URL_ASYNC=postgresql+asyncpg://user:pass@localhost:5432/dbname
+REDIS_URL=redis://localhost:6379/0
+SECRET_KEY=change-me
 
 # SuperTokens
 SUPERTOKENS_HOST=http://localhost
@@ -232,10 +234,42 @@ La API está disponible bajo el prefijo `/v1`. Documentación interactiva dispon
 | `PATCH` | `/order/{id}/inventory` | Descontar inventario del pedido |
 | `POST` | `/payment/` | Registrar pago |
 | `POST` | `/invoice/generate` | Generar y enviar factura PDF |
+| `POST` | `/orders/{order_id}/invoice` | Crear token y encolar factura PDF |
+| `GET` | `/orders/invoices/{verification_token}` | Obtener factura PDF por token |
+| `GET` | `/tasks/{task_id}` | Estado del job de facturacion |
 | `GET` | `/files/{key}` | Obtener archivo del storage |
 | `GET` | `/employee/employee/profile/complete` | Completar perfil de empleado |
 
 Rate limiting global: **120 req/min** sostenido, **30 req/s** en picos.
+
+---
+
+## Facturacion
+
+Flujo nuevo para generar y entregar facturas PDF con Celery + WeasyPrint:
+
+- `POST /v1/orders/{order_id}/invoice` genera el token y encola la tarea.
+- `GET /v1/orders/invoices/{verification_token}` retorna el PDF desde storage (inline).
+- `GET /v1/tasks/{task_id}` consulta el estado del job de Celery.
+
+Notas importantes:
+
+- El token de verificacion se crea antes del render para mantener el PDF inmutable.
+- `verification_token` se firma con `SECRET_KEY` (HMAC-SHA256).
+- El QR se genera en el worker y se incrusta en el HTML.
+- El PDF se crea solo en el worker (no en endpoints async).
+
+Ejecutar worker:
+
+```bash
+celery -A src.celery_app.celery_app worker -l info --concurrency=1
+```
+
+Recomendacion: `--concurrency=1` o `2` porque WeasyPrint consume CPU/RAM.
+
+En desarrollo, SMTP se redirige a Mailhog (UI en `http://localhost:8025`).
+
+Mas detalles en `README_FACTURACION.md`.
 
 ---
 

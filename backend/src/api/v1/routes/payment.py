@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from core import require_scope
+from core.auth import require_scope
 from db import get_session
 from schemas import PaymentCreate, PaymentRead, PaymentUpdate
 from services import PaymentService

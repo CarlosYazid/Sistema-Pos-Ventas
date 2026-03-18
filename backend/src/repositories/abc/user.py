@@ -22,10 +22,10 @@ class UserRepository(BaseRepository[T]):
         return self._soft_delete(await self.read(id, session), session)
 
     def _soft_delete(self, user: T | None, session: AsyncSession) -> bool:
+        
         if not user:
             return False
 
         user.status = False
-        session.add(user)
 
         return True

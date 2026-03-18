@@ -1,6 +1,6 @@
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from core import NotFoundError
+from core.errors import NotFoundError
 from models import Product, ProductCategory
 from repositories import CategoryRepository
 
