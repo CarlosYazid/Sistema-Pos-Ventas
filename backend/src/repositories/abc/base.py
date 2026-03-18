@@ -48,8 +48,6 @@ class BaseRepository(AbstractRepository[T]):
 
         obj.sqlmodel_update(payload)
 
-        session.add(obj)
-
         return obj
 
     async def delete(self, id: Id, session: AsyncSession) -> bool:

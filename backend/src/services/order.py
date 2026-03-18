@@ -1,6 +1,6 @@
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from core import (
+from core.errors import (
     ExpiredProductError,
     InsufficientStockError,
     NotFoundError,

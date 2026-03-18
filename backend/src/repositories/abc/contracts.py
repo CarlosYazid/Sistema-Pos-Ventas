@@ -2,8 +2,8 @@ from abc import ABC, abstractmethod
 from typing import Generic, Type, TypeVar
 
 from db import AbstractSession
-from models import AbstractModel
-from schemas import AbstractCreate, AbstractUpdate
+from models.abc import AbstractModel
+from schemas.abc import AbstractCreate, AbstractUpdate
 
 AT = TypeVar("AT", bound=AbstractModel)
 

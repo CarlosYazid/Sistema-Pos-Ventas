@@ -1,6 +1,6 @@
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from core import (
+from core.errors import (
     NotFoundError,
 )
 from models import Product, ServiceInput
@@ -30,7 +30,5 @@ class ServiceService(BaseService[ServiceRepository]):
 
         return await self.service_input_service.add(service_input, session)
 
-    async def remove_product(
-        self, service_input: ServiceInput, session: AsyncSession
-    ) -> ServiceInput:
+    async def remove_product(self, service_input: ServiceInput, session: AsyncSession) -> bool:
         return await self.service_input_service.remove(service_input, session)

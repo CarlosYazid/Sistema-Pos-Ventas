@@ -2,9 +2,8 @@ from abc import ABC, abstractmethod
 from typing import Generic
 
 from db import AbstractSession
-from repositories.abc import AT, Criteria
-from repositories.abc.contracts import AbstractAssociationRepository, AbstractRepository
-from schemas import AbstractCreate, AbstractUpdate
+from repositories.abc import AT, AbstractAssociationRepository, AbstractRepository, Criteria
+from schemas.abc import AbstractCreate, AbstractUpdate
 
 
 class AbstractService(ABC, Generic[AT]):

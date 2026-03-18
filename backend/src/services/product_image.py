@@ -3,7 +3,7 @@ from fastapi import UploadFile
 from sqlalchemy.exc import SQLAlchemyError
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from core import NotFoundError, UpdateError
+from core.errors import NotFoundError, UpdateError
 from models import Product
 from services.abc import AbstractService
 

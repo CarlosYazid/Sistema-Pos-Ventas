@@ -5,7 +5,8 @@ from fastapi_pagination.ext.sqlalchemy import apaginate
 from fastapi_querybuilder import QueryBuilder
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from core import get_e2_client, require_scope
+from core.auth import require_scope
+from core.storage import get_e2_client
 from db import get_session
 from models import Product
 from schemas import (
@@ -14,7 +15,7 @@ from schemas import (
     ProductUpdate,
 )
 from services import ProductImageService, ProductService
-from utils import ProductUtils
+from utils.product import ProductUtils
 
 router = APIRouter(prefix="/product", tags=["Product"])
 
@@ -79,7 +80,7 @@ async def delete_product(
 async def list_products(
     query=QueryBuilder(Product),
     session: AsyncSession = Depends(get_session),
-    _: object = Depends(require_scope("catalog:read")),
+    _: object = Depends(require_scope("catalog:all:read")),
 ):
 
     return await apaginate(session, query)

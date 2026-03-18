@@ -1,7 +1,8 @@
 from botocore.client import BaseClient
 from fastapi import APIRouter, Depends
 
-from core import get_e2_client, require_scope
+from core.auth import require_scope
+from core.storage import get_e2_client
 from services import FileService
 
 router = APIRouter(prefix="/files", tags=["Files"])

@@ -3,7 +3,7 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile
-      target: runtime
+      target: api-prod
       args:
         PORT: 8080
 
@@ -15,16 +15,20 @@ services:
 
     command: >
       sh -c "
-      alembic -c /app/src/db/alembic.ini upgrade head &&
+      alembic -c /app/alembic.ini upgrade head &&
       gunicorn src.main:app
       -k uvicorn.workers.UvicornWorker
       -w 4
+      -b 0.0.0.0:8080
+      --worker-tmp-dir /tmp
       "
 
     restart: unless-stopped
 
     depends_on:
       supertokens:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
     healthcheck:
@@ -35,7 +39,6 @@ services:
 
   supertokens:
     image: supertokens/supertokens-postgresql:latest
-
     environment:
       POSTGRESQL_CONNECTION_URI: "${SUPERTOKENS_DB_URI}"
 
@@ -43,15 +46,79 @@ services:
       - "${SUPERTOKENS_PORT:-3567}:3567"
 
     volumes:
-      - supertokens_data_prod:/var/lib/supertokens
-
-    restart: unless-stopped
+      - supertokens_data_dev:/var/lib/supertokens
 
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:3567/hello || exit 1"]
-      interval: 15s
+      interval: 10s
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:7-alpine
+    command:
+      - redis-server
+      - /usr/local/etc/redis/redis.conf
+      - --requirepass
+      - ${REDIS_PASSWORD:-password}
+    volumes:
+      - redis-data:/data
+      - ../redis.conf:/usr/local/etc/redis/redis.conf
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a ${REDIS_PASSWORD:-password} ping | grep PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  worker-invoices:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: back-task-prod
+    env_file:
+      - ../../.env
+    command: >
+      celery -A src.celery_app worker -Q invoices -n invoices.%h --concurrency=${CONCURRENCY_INVOICES:-2} --loglevel=${CELERY_LOGLEVEL:-info} --max-tasks-per-child=${MAX_TASKS_PER_CHILD_INVOICES:-50}
+    volumes:
+      - /app/src
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  worker-cron:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: back-task-prod
+    env_file:
+      - ../../.env
+    command: >
+      celery -A src.celery_app worker -Q cron -n cron.%h --concurrency=${CONCURRENCY_CRON:-1} --loglevel=${CELERY_LOGLEVEL:-info} --max-tasks-per-child=${MAX_TASKS_PER_CHILD_CRON:-200}
+    volumes:
+      - /app/src
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  beat:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: back-task-prod
+    env_file:
+      - ../../.env
+    command: >
+      celery -A src.celery_app beat --loglevel=${CELERY_LOGLEVEL:-info} --pidfile=/tmp/celerybeat.pid --schedule=/tmp/celerybeat-schedule
+    volumes:
+      - /app/src
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
 volumes:
-  supertokens_data_prod:
+  redis-data:
+  supertokens_data_dev:

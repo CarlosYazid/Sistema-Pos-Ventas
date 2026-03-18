@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Alerta: Productos Vencidos</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f6f8;font-family:Arial,Helvetica,sans-serif;color:#333;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f8;padding:20px;">
+    <tr>
+      <td align="center">
+        <!-- Contenedor -->
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:8px;overflow:hidden;border:1px solid #e9eef2;">
+          <!-- Header -->
+          <tr>
+            <td style="background:#dc3545;padding:18px 20px;text-align:left;">
+              <img src="{{ company.logo }}" alt="{{ company.name }} logo" height="64" style="display:inline-block;vertical-align:middle;border:0;"/>
+              <div style="display:inline-block;vertical-align:middle;margin-left:12px;color:#fff;font-size:18px;font-weight:600;">
+                Alerta: Productos Vencidos
+              </div>
+            </td>
+          </tr>
+
+          <!-- Cuerpo -->
+          <tr>
+            <td style="padding:24px;">
+              <p style="margin:0 0 12px 0;font-size:15px;line-height:1.5;">
+                Se han detectado los siguientes productos con fecha de expiración vencida en el inventario. Por favor revisa y procesa su retiro o descarte según corresponda.
+              </p>
+
+              <!-- Tabla de productos -->
+              <table role="presentation" width="100%" cellpadding="6" cellspacing="0" style="border-collapse:collapse;margin-top:16px;">
+                <thead>
+                  <tr style="background:#f7fafb;color:#555;font-weight:600;border-bottom:1px solid #e6eef6;">
+                    <th align="left" style="padding:10px 8px;font-size:13px;">Producto</th>
+                    <th align="right" style="padding:10px 8px;font-size:13px;">Fecha venc.</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% if items and items|length > 0 %}
+                    {% for item in items %}
+                      <tr style="border-bottom:1px solid #f0f4f7;">
+                        <td style="padding:10px 8px;font-size:14px;vertical-align:top;">
+                          <div style="font-weight:600;">{{ item.product_name | capitalize }}</div>
+                        </td>
+                        <td align="right" style="padding:10px 8px;font-size:14px;vertical-align:top;">
+                          {{ item.expiration_date }} <!-- formatea según tu motor de plantillas si quieres: ejemplo Jinja2: item.expiry_date.strftime('%d/%m/%Y') -->
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  {% else %}
+                    <tr>
+                      <td colspan="5" style="padding:18px 8px;text-align:center;color:#666;font-size:14px;">
+                        ✅ No se encontraron productos vencidos.
+                      </td>
+                    </tr>
+                  {% endif %}
+                </tbody>
+              </table>
+
+              <!-- CTA -->
+              <div style="margin-top:22px; text-align:center;">
+                <a href="{{ inventory_url | default('#') }}" style="display:inline-block;padding:10px 16px;border-radius:6px;background:#007bff;color:#fff;text-decoration:none;font-weight:600;font-size:14px;">
+                  Ver inventario
+                </a>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background:#fafafa;text-align:center;font-size:12px;color:#9aa3ad;padding:14px 18px;">
+              © {{ current_year }} {{ company.name }}. Todos los derechos reservados.
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

@@ -1,4 +1,5 @@
 from .abc import AbstractModel, BaseModel, UserModel
+from .alert import ExpirationAlert, StockAlert
 from .client import Client
 from .employee import Employee
 from .order import Order, OrderProduct, OrderService, OrderStatus
@@ -10,6 +11,7 @@ __all__ = [
     "AbstractModel",
     "BaseModel",
     "UserModel",
+    "ExpirationAlert", "StockAlert",
     "Client",
     "Employee",
     "Product",

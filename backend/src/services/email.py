@@ -1,7 +1,6 @@
-from typing import Any, Dict, Optional
+from typing import Dict
 
 from fastapi_mail import ConnectionConfig, FastMail, MessageSchema, MessageType
-from pydantic import BaseModel, EmailStr
 from supertokens_python.ingredients.emaildelivery.types import EmailDeliveryInterface
 from supertokens_python.recipe.emailpassword.types import PasswordResetEmailTemplateVars
 from supertokens_python.recipe.emailverification.types import VerificationEmailTemplateVars
@@ -9,25 +8,15 @@ from supertokens_python.recipe.emailverification.types import VerificationEmailT
 from core.settings import SETTINGS
 
 
-class EmailSchema(BaseModel):
-    body: Optional[str] = None
-    subject: str
-    recipients: list[EmailStr]
-    subtype: Any
-    template_body: Optional[dict[str, Any]] = None
-
-
 class EmailService:
     def __init__(self, email_conf: ConnectionConfig):
         self.fm = FastMail(email_conf)
 
-    async def send_email(self, email_data: EmailSchema, template_name: str | None = None) -> None:
+    async def send_email(self, message: MessageSchema, template_name: str | None = None) -> None:
         if template_name is not None:
-            await self.fm.send_message(
-                MessageSchema(**email_data.model_dump()), template_name=template_name
-            )
+            await self.fm.send_message(message, template_name=template_name)
         else:
-            await self.fm.send_message(MessageSchema(**email_data.model_dump()))
+            await self.fm.send_message(message)
 
 
 class SuperTokensEmailVerificationService(EmailDeliveryInterface[VerificationEmailTemplateVars]):
@@ -39,7 +28,7 @@ class SuperTokensEmailVerificationService(EmailDeliveryInterface[VerificationEma
         template_vars: VerificationEmailTemplateVars,
         user_context: Dict,
     ) -> None:
-        email_data = EmailSchema(
+        email_data = MessageSchema(
             subject=f"{SETTINGS.app_name} - Verifica tu correo",
             recipients=[template_vars.user.email],
             subtype=MessageType.html,
@@ -62,7 +51,7 @@ class SuperTokensPasswordResetService(EmailDeliveryInterface[PasswordResetEmailT
         template_vars: PasswordResetEmailTemplateVars,
         user_context: Dict,
     ) -> None:
-        email_data = EmailSchema(
+        email_data = MessageSchema(
             subject=f"{SETTINGS.app_name} - Restablece tu contrasena",
             recipients=[template_vars.user.email],
             subtype=MessageType.html,

@@ -1,12 +1,14 @@
+from urllib.parse import quote
+
 from botocore.client import BaseClient
 from botocore.exceptions import ClientError
-from starlette.responses import StreamingResponse
+from fastapi.responses import StreamingResponse
 
-from core import SETTINGS, FNFError, RetrievingFileError, log_operation
+from core.errors import FileNotFoundError, RetrievingFileError
+from core.settings import SETTINGS
 
 
 class FileService:
-    @log_operation()
     async def get_file(self, key: str, storage_client: BaseClient) -> StreamingResponse:
         """Retrieve a file by name."""
 
@@ -17,7 +19,7 @@ class FileService:
 
         except ClientError as e:
             if e.response["Error"]["Code"] in ("404", "NoSuchKey"):
-                raise FNFError(key) from e
+                raise FileNotFoundError(key) from e
 
             raise RetrievingFileError() from e
 
@@ -26,5 +28,5 @@ class FileService:
         return StreamingResponse(
             obj.get("Body", None),
             media_type=content_type,
-            headers={"Content-Disposition": f'inline; filename="{key.split("/")[-1]}"'},
+            headers={"Content-Disposition": f'inline; filename="{quote(key.split("/")[-1])}"'},
         )

@@ -24,6 +24,7 @@ class ProductRepository(BaseRepository[Product]):
         result = await session.exec(
             select(Product.id)
             .where(Product.id == _id)
+            .where(Product.expiration_date != None)
             .where(Product.expiration_date > date.today())
         )
 

@@ -8,6 +8,7 @@ from .abc import BaseModel
 from .service import ServiceInput
 
 if TYPE_CHECKING:
+    from .alert import ExpirationAlert, StockAlert
     from .order import OrderProduct
     from .service import Service
 
@@ -67,6 +68,14 @@ class Product(BaseModel, table=True):
     )
 
     order_products: Optional[list["OrderProduct"]] = Relationship(
+        back_populates="product", sa_relationship_kwargs={"lazy": "selectin"}
+    )
+
+    stock_alert: Optional[list["StockAlert"]] = Relationship(
+        back_populates="product", sa_relationship_kwargs={"lazy": "selectin"}
+    )
+
+    expiration_alert: Optional[list["ExpirationAlert"]] = Relationship(
         back_populates="product", sa_relationship_kwargs={"lazy": "selectin"}
     )
 
