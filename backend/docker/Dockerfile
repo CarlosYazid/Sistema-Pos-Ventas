@@ -3,11 +3,14 @@ FROM python:3.13-slim AS base
 
 RUN apt-get update
 
+# configs
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONPATH=/app/src
 
-WORKDIR /app
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq-dev curl \
+    && rm -rf /var/lib/apt/lists/*
 
 # / -- builder image -- /
 FROM base AS builder
