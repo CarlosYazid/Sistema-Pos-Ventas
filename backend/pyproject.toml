@@ -15,7 +15,7 @@ dependencies = [
     "pydantic-settings>=2.12.0",
     "pydantic[email]>=2.12.5",
     "python-multipart>=0.0.22",
-    "sqlmodel>=0.0.31",
+    "sqlmodel>=0.0.38",
 ]
 
 [tool.ruff]
